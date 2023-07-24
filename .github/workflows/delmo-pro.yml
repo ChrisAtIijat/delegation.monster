@@ -3,7 +3,7 @@ name: PRO - Azure Static Web App CI/CD
 on:
   push:
     branches: 
-    - master
+    - main
 
 jobs:
   build_and_deploy_job:
