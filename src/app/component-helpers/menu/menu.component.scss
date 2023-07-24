@@ -1,0 +1,87 @@
+@use '@angular/material' as mat;
+@import '../../../styles.scss';
+
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .mtx-drawer-container {
+  background: #050523; //  #000000 !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::ng-deep .mtx-drawer-content-wrapper {
+  padding: 0 0 16px 0;
+}
+
+.small-gray {
+  color: lightgray;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: Roboto, sans-serif;
+  letter-spacing: 0.0178571429em;
+}
+
+.menu-button {
+  height: 60px;
+  padding-left: 16px;
+  cursor: pointer;
+
+  font-size: 16px;
+
+  display: flex;
+  flex-direction: row;
+  column-gap: 16px;
+  align-items: center;
+}
+
+a.menu-button {
+  text-decoration: none;
+  color: inherit;
+
+  &:visited {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.reduced {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.green {
+  color: var(--green);
+}
+
+.orange {
+  color: mat.get-color-from-palette($primary, 800);
+}
+
+.bottom {
+  bottom: 16px;
+  position: fixed;
+  width: 300px;
+
+  .links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+
+    a {
+      color: mat.get-color-from-palette($primary, 800);
+
+      text-decoration: none;
+
+      :visited {
+        color: inherit;
+      }
+
+      :active {
+        color: inherit;
+      }
+    }
+  }
+}

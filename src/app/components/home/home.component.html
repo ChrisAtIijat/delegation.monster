@@ -1,0 +1,93 @@
+<div></div>
+
+<div class="actions">
+  <button
+    mat-stroked-button
+    color="primary"
+    class="button-big"
+    style="border-color: initial"
+    (click)="onClickPaste()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>content_paste</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">PASTE</div>
+    </div>
+  </button>
+
+  <button
+    mat-flat-button
+    class="button-big"
+    color="primary"
+    (click)="showScanFs = true"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>crop_free</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">SCAN</div>
+    </div>
+  </button>
+</div>
+
+<delmo-scan
+  *ngIf="showScanFs"
+  [(show)]="showScanFs"
+  (newApp)="onNewApp($event)"
+></delmo-scan>
+
+<!-- APPROVE OVERLAY -->
+<div *ngIf="showApproveAppFs" class="approve-app-overlay">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="showApproveAppFs = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <delmo-section>App Details</delmo-section>
+
+  <span class="label mt-small">Name</span>
+  <span>{{ app?.metadata?.name }}</span>
+
+  <ng-container *ngIf="app?.metadata?.url">
+    <span class="label mt-normal">Url</span>
+    <span>{{ app?.metadata?.url }}</span>
+  </ng-container>
+
+  <ng-container *ngIf="app?.metadata?.description">
+    <span class="label mt-normal">Description</span>
+    <span>{{ app?.metadata?.description }}</span>
+  </ng-container>
+
+  <span class="label mt-normal">Relay</span>
+  <span>{{ app?.relay }}</span>
+
+  <!-- <div class="mt-large">&nbsp;</div> -->
+
+  <button
+    mat-stroked-button
+    color="primary"
+    class="button-big mt-large"
+    style="border-color: initial"
+    (click)="declineApp()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>thumb_down_alt</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">DECLINE</div>
+    </div>
+  </button>
+
+  <button
+    mat-flat-button
+    class="button-big mt-large"
+    color="primary"
+    (click)="approveApp()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>thumb_up</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">APPROVE</div>
+    </div>
+  </button>
+
+  <!-- <div class="mt-normal">&nbsp;</div> -->
+</div>

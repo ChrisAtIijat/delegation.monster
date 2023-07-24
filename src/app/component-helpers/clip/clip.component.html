@@ -1,0 +1,17 @@
+<div class="clip" (click)="onClick()">
+  <div *ngIf="icon" class="icon">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+
+  <span *ngIf="!isOnCopyToClipboard" class="text">
+    <ng-container *ngIf="isSecret; else isNoSecret">
+      {{ getSecretText() }}
+    </ng-container>
+
+    <ng-template #isNoSecret>
+      {{ text }}
+    </ng-template>
+  </span>
+
+  <span *ngIf="isOnCopyToClipboard" class="text"> copied to clipboard </span>
+</div>

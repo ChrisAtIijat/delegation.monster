@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" color="primary">
+  <input matInput placeholder="Name" [(ngModel)]="nick" />
+</mat-form-field>
+
+<div class="grid">
+  <mat-form-field appearance="outline" color="primary">
+    <input
+      matInput
+      placeholder="Secret Key (NSEC or HEX)"
+      [(ngModel)]="privkey"
+    />
+  </mat-form-field>
+
+  <button
+    mat-fab
+    color="primary"
+    style="margin-bottom: 19px"
+    (click)="onClickImport()"
+    [disabled]="!canImport"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,24 @@
+<ngx-scanner-qrcode
+  #scanner="scanner"
+  (event)="onEvent($event)"
+></ngx-scanner-qrcode>
+
+<div class="app-layer">
+  <button class="close" mat-fab color="primary" (click)="onClickClose()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="all justify-self-center align-self-center">
+    <mat-icon class="crop-icon">crop_free</mat-icon>
+  </div>
+
+  <div class="bottom">
+    <mat-form-field appearance="outline" color="primary">
+      <mat-select [(ngModel)]="selectedDevice">
+        <mat-option *ngFor="let device of devices" [value]="device">
+          {{ device.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

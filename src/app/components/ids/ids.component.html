@@ -1,0 +1,110 @@
+<div class="flex-column ml-normal mr-normal mt-normal">
+  <delmo-section>Identities</delmo-section>
+
+  <ng-container *ngIf="keys.length === 0">
+    <!-- HAS NO KEYS -->
+    <span>You do not have any managed identities.</span>
+  </ng-container>
+
+  <ng-container *ngIf="keys.length > 0">
+    <!-- HAS KEYS -->
+    <div class="flex-column gap-tiny mb-large">
+      <div *ngFor="let key of keys" class="key" (click)="onClickKey(key)">
+        <div class="flex-row align-items-center gap-normal">
+          <div class="font-size-12" style="color: lightgray">
+            Identity {{ key.nid }}
+          </div>
+          <div style="color: var(--green)">{{ key.nick }}</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<div class="new-button-container">
+  <button
+    mat-fab
+    color="primary"
+    style="pointer-events: all"
+    (click)="isNewIdVisible = true"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<!-- OVERLAY -->
+<div
+  *ngIf="isNewIdVisible"
+  class="new-id-overlay"
+  (click)="isNewIdVisible = false"
+>
+  <div class="button-grid">
+    <div class="text">Add Existing</div>
+    <button
+      class="justify-self-center"
+      mat-mini-fab
+      color="primary"
+      (click)="isNewIdVisible = true; importExistingKey()"
+    >
+      <mat-icon>content_paste</mat-icon>
+    </button>
+
+    <div class="text">Generate New</div>
+    <button
+      mat-fab
+      color="primary"
+      (click)="isNewIdVisible = true; generateNewKey()"
+    >
+      <mat-icon>vpn_key</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- EDIT ID -->
+<div *ngIf="isIdEditVisible" class="id-edit-overlay">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="isIdEditVisible = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <delmo-section>Identity</delmo-section>
+
+  <mat-form-field appearance="outline" color="primary">
+    <input
+      matInput
+      placeholder="Nick"
+      [ngModel]="selectedKey?.nick"
+      (change)="onChangeNick($event)"
+    />
+  </mat-form-field>
+
+  <span class="label">Public Key</span>
+  <delmo-clip
+    style="margin-left: -4px"
+    [text]="selectedKey?.pubkey"
+  ></delmo-clip>
+
+  <span class="label mt-normal">Secret Key</span>
+  <delmo-clip
+    [isSecret]="true"
+    style="margin-left: -4px"
+    [text]="selectedKey?.privkey"
+  ></delmo-clip>
+
+  <span class="section mt-large-x2">DANGER ZONE</span>
+  <button
+    mat-flat-button
+    color="warn"
+    class="button-big mt-small"
+    (click)="deleteIdentity()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>delete</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">DELETE</div>
+    </div>
+  </button>
+</div>

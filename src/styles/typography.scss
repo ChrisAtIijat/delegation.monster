@@ -1,0 +1,12 @@
+@use '@angular/material' as mat;
+@import '../styles/material.scss';
+
+.label {
+  color: lightgray;
+  font-size: 12px;
+}
+
+.section {
+  font-size: 16px;
+  color: mat.get-color-from-palette($primary, 800);
+}

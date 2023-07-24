@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>Unlock to continue</h1>
+
+<mat-dialog-content>
+  <div class="flex-column">
+    <mat-form-field class="mt-normal" appearance="outline" color="primary">
+      <input
+        matInput
+        placeholder="Your unlock passcode"
+        [(ngModel)]="unlockCode"
+        type="password"
+        (keydown.enter)="unlock()"
+      />
+    </mat-form-field>
+
+    <button
+      (click)="unlock()"
+      mat-flat-button
+      class="button-big mt-large"
+      color="primary"
+      [disabled]="!canUnlock"
+    >
+      <div class="flex-row align-items-center gap-tiny">
+        <div style="font-size: 16px; font-weight: 600">UNLOCK</div>
+      </div>
+    </button>
+  </div>
+</mat-dialog-content>

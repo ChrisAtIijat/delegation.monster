@@ -1,0 +1,62 @@
+@use '@angular/material' as mat;
+@import '../../../styles.scss';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.splash {
+  top: 0;
+  bottom: 0;
+  position: fixed;
+  width: 100%;
+  //background: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .error-message {
+    font-size: 12px;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.orange {
+  color: mat.get-color-from-palette($primary, 800);
+}
+
+.line-1 {
+  font-size: 48px;
+  color: mat.get-color-from-palette($primary, 800);
+}
+
+.line-2 {
+  margin-top: -12px;
+  font-size: 24px;
+  font-weight: 500;
+  color: mat.get-color-from-palette($primary, 800);
+}
+
+.line-3 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 16px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  transform: rotate(-2deg);
+}
+
+.version {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  align-self: flex-end;
+}
+
+.dim {
+  color: rgba(255, 255, 255, 0.7);
+}

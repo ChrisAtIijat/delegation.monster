@@ -1,0 +1,78 @@
+<div class="flex-column ml-normal mr-normal mt-normal">
+  <delmo-section>FAQ</delmo-section>
+
+  <span class="section mt-large">
+    Where do you store my data? Who has access to it?</span
+  >
+  <span class="mt-small">
+    The app stores all data locally within the browser. NO data is stored
+    online. NO data is forwarded to any backend. In fact there is NO
+    communication with any backend whatsoever.
+    <br /><br />
+    delegation.monster is a JavaScript app written in Angular that runs purely
+    and locally within the browser.<br />
+    <br />
+    The only communication is with the relay defined in the Nostr Connect URI.
+  </span>
+
+  <span class="section mt-large-x2"> How do you store my data locally?</span>
+  <span class="mt-small">
+    Most of the data is stored within the browser's
+    <a
+      href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"
+      target="_blank"
+    >
+      IndexedDB
+    </a>
+    . We use <a href="https://rxdb.info/" target="_blank">RxDB</a> to
+    programmatically access the IndexedDB from within our app. Additionally,
+    some data is stored in the browser's
+    <a
+      href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
+      target="_blank"
+    >
+      localStorage
+    </a>
+    .
+  </span>
+
+  <span class="section mt-large-x2">
+    Do you use any encryption? How secure are my keys?
+  </span>
+  <span class="mt-small">
+    When you first run our app, you are asked to provide a password that we then
+    use to create the IndexedDB. You have to provide this password every time
+    you start the app.<br />
+    <br />
+    All secret keys are stored encrypted in the IndexedDB. All other data is not
+    encrypted. You can find more details about the encryption with RxDB
+    <a href="https://rxdb.info/encryption.html" target="_blank">here</a>.
+  </span>
+
+  <span class="section mt-large-x2">
+    There is a "just test the software" option where I don't have to provide a
+    password. That seems cool. How secure is that?
+  </span>
+  <span class="mt-small">
+    Using this option, the IndexedDB is still created with a password and the
+    secret keys are still encrypted. However, the automatically created password
+    is stored unencrypted within the localStorage of your browser. This is NOT
+    considered secure and therefore should only be used when testing the app.
+  </span>
+
+  <span class="section mt-large-x2">
+    I use a browser extension to manage my keys. Can I still use
+    delegation.monster with this extension?
+  </span>
+  <span class="mt-small mb-large-x2">
+    Yes you can. delegation.monster supports browser extensions that implement
+    <a
+      href="https://github.com/nostr-protocol/nips/blob/master/07.md"
+      target="_blank"
+    >
+      NIP-07
+    </a>
+    . In that case you don't need to store any secret keys within
+    delegation.monster. They remain within your browser extension.
+  </span>
+</div>

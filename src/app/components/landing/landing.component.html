@@ -1,0 +1,51 @@
+<!-- <ng-container>
+  <div class="splash">
+    <div class="flex-column align-items-center">
+      <div class="flex-column align-items-end">
+        <div class="line-1">delegation</div>
+        <div class="line-2">.monster</div>
+      </div>
+      <div class="line-3">a Nostr NIP-46 Wallet</div>
+      <div style="color: var(--green)">alpha.0 (do not use)</div>
+      <button (click)="resetDb()">Reset DB</button>
+    </div>
+  </div>
+</ng-container> -->
+
+<ng-container *ngIf="!rxdbService.isInitialized">
+  <div class="splash">
+    <div class="flex-column align-items-center">
+      <div class="flex-column align-items-end">
+        <div class="line-1">delegation</div>
+        <div class="line-2">.monster</div>
+      </div>
+      <div class="line-3">a Nostr Connect Wallet</div>
+
+      <span class="version">v {{ version }}</span>
+
+      <div *ngIf="errorMessage" class="error-message">
+        <span class="color-green">{{ errorMessage }}</span>
+        <span class="mt-normal dim">
+          As a last resort you can reset the local database and start from
+          scratch.
+        </span>
+        <button
+          (click)="resetDb()"
+          mat-flat-button
+          class="mt-normal"
+          color="warn"
+        >
+          RESET DB
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="rxdbService.isInitialized">
+  <delmo-header></delmo-header>
+
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</ng-container>

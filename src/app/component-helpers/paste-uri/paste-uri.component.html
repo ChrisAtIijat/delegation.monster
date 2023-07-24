@@ -1,0 +1,16 @@
+<mat-form-field appearance="outline" color="primary">
+  <input
+    matInput
+    placeholder="Nostr Connect URI"
+    [(ngModel)]="nostrConnectUri"
+  />
+</mat-form-field>
+
+<button
+  mat-fab
+  color="primary"
+  style="margin-bottom: 19px"
+  (click)="onClickAccept()"
+>
+  <mat-icon>add</mat-icon>
+</button>

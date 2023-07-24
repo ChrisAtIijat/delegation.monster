@@ -1,0 +1,11 @@
+<div>
+  {{ data.app.metadata.name }}
+</div>
+<div>{{ data.app.relay }}</div>
+
+<mat-dialog-actions align="center">
+  <button mat-button color="accent" mat-dialog-close>REJECT</button>
+  <button mat-flat-button color="accent" (click)="onClickApprove()">
+    APPROVE
+  </button>
+</mat-dialog-actions>

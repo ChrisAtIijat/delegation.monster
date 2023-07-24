@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+@import '../../../styles/material.scss';
+
+.clip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+
+  .text {
+    padding: 4px 4px;
+    box-sizing: border-box;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .icon {
+    margin: 0 8px;
+  }
+
+  :hover {
+    background-color: mat.get-color-from-palette($primary, 500);
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
