@@ -1,0 +1,25 @@
+<div class="container header-row">
+  <div class="brand" (click)="onClickBrand()">
+    <img
+      *ngIf="!mixedService.isLightMode"
+      src="/assets/Monster_6.svg"
+      height="68"
+      alt=""
+    />
+    <img
+      *ngIf="mixedService.isLightMode"
+      src="/assets/Monster_4.svg"
+      height="68"
+      alt=""
+    />
+
+    <div class="brand-text">delegation.monster</div>
+  </div>
+  <button
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="onClickMenu($event)"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,109 @@
+<div class="flex-column ml-normal mr-normal mt-normal light-theme">
+  <delmo-section>NIP-46 Test App</delmo-section>
+
+  <span>
+    To test the functionality of the NIP-46 <b>signer</b>, you can instantiate a
+    NIP-46 <b>app</b> here.
+  </span>
+
+  <mat-checkbox [color]="color" class="mt-small" [(ngModel)]="useDefaultFlow"
+    >use automatic flow</mat-checkbox
+  >
+
+  <span class="small">
+    The app will respond to a <b>connect</b> request from a signer with a
+    <b>get_public_key</b> request. When it receives the response (i.e. the
+    public key), it will send a <b>sign_event</b> request.
+  </span>
+
+  <mat-form-field class="mt-large" appearance="outline" [color]="color">
+    <input matInput placeholder="Nick" [(ngModel)]="relay" />
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    [color]="color"
+    class="button-big"
+    (click)="generate()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>autorenew</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">GENERATE</div>
+    </div>
+  </button>
+
+  <ng-container *ngIf="nip46Uri">
+    <delmo-clip class="mt-normal" text="{{ nip46Uri }}"></delmo-clip>
+
+    <div class="qrcode-wrapper mt-small">
+      <qrcode [qrdata]="nip46Uri" [width]="256" [errorCorrectionLevel]="'M'">
+      </qrcode>
+    </div>
+
+    <div class="mt-large flex-row align-items-center gap-small">
+      <mat-icon class="color-orange-800"> east </mat-icon>
+      <span>in</span>
+    </div>
+
+    <div class="mb-large flex-row align-items-center gap-small">
+      <mat-icon class="color-green"> west </mat-icon>
+      <span>out</span>
+    </div>
+  </ng-container>
+
+  <div *ngFor="let log of logs | keyvalue" class="logs-row">
+    <div>{{ log.key | date : 'HH:mm:ss.SSS' }}</div>
+
+    <mat-icon class="color-orange-800" *ngIf="log.value.direction === 'in'">
+      east
+    </mat-icon>
+    <mat-icon style="color: var(--green)" *ngIf="log.value.direction === 'out'">
+      west
+    </mat-icon>
+
+    <div
+      class="flex-row align-items-center gap-small"
+      style="overflow-x: hidden"
+    >
+      <div class="log-message">{{ log.value.message }}</div>
+      <mtx-popover
+        #popover="mtxPopover"
+        [position]="['above', 'center']"
+        [xOffset]="0"
+        [yOffset]="0"
+        [closeOnPanelClick]="true"
+        [closeOnBackdropClick]="true"
+        [hasBackdrop]="true"
+        [elevation]="8"
+      >
+        <ng-template mtxPopoverContent let-details="details">
+          <div
+            style="
+              max-width: 400px;
+              overflow-x: hidden;
+              white-space: pre;
+              overflow-wrap: anywhere;
+              line-break: anywhere;
+              text-wrap: balance;
+            "
+          >
+            {{ details }}
+          </div>
+        </ng-template>
+      </mtx-popover>
+
+      <div
+        *ngIf="log.value.details"
+        class="small"
+        #popoverTrigger="mtxPopoverTrigger"
+        [mtxPopoverTriggerFor]="popover"
+        mtxPopoverTriggerOn="hover"
+        [mtxPopoverTriggerData]="{ details: log.value.detailsAsString }"
+      >
+        details
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-large"></div>
+</div>

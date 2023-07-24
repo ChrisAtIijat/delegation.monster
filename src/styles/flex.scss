@@ -1,0 +1,55 @@
+@import './dimensions';
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+
+  &.gap-normal {
+    column-gap: $normal;
+  }
+
+  &.gap-small {
+    column-gap: $small;
+  }
+
+  &.gap-tiny {
+    column-gap: $tiny;
+  }
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+
+  &.gap-small {
+    row-gap: $small;
+  }
+
+  &.gap-tiny {
+    row-gap: $tiny;
+  }
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.align-self-center {
+  align-self: center;
+}
+
+.align-self-end {
+  align-self: flex-end;
+}
+
+.align-items-end {
+  align-items: end;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.justify-self-center {
+  justify-self: center;
+}

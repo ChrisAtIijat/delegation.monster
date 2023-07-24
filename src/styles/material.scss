@@ -1,0 +1,53 @@
+$primary-palette: (
+  50: #fff9e8,
+  100: #fff0c4,
+  200: #ffe6a0,
+  300: #ffde7f,
+  400: #ffd56e,
+  500: #ffce69,
+  600: #ffc264,
+  700: #ffb15f,
+  800: #ffa35c,
+  900: #f78b57,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: rgba(black, 0.87),
+    600: rgba(black, 0.87),
+    700: rgba(black, 0.87),
+    800: rgba(black, 0.87),
+    900: rgba(black, 0.87),
+  ),
+);
+
+$accent-palette: (
+  50: #f8e6f6,
+  100: #edc0ea,
+  200: #e296dd,
+  300: #d669cf,
+  400: #cb43c4,
+  500: #c014ba,
+  600: #b111b4,
+  700: #9d08ad,
+  800: #8c03a7,
+  900: #8c03a7,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: rgba(black, 0.87),
+    600: rgba(black, 0.87),
+    700: rgba(black, 0.87),
+    800: rgba(black, 0.87),
+    900: rgba(black, 0.87),
+  ),
+);
+
+$primary: mat.define-palette($primary-palette, 800);
+$accent: mat.define-palette($accent-palette);
+$warn: mat.define-palette(mat.$red-palette);

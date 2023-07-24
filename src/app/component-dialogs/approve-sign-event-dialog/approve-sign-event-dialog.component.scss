@@ -1,0 +1,19 @@
+.header {
+  text-align: center;
+}
+
+.details-container {
+  //   white-space: pre;
+  background: #ffffff;
+  padding: 0 8px;
+  color: #000000;
+}
+
+::ng-deep .mdc-dialog__content {
+  overflow-x: hidden;
+}
+
+.wrap {
+  overflow-wrap: anywhere;
+  text-wrap: wrap;
+}

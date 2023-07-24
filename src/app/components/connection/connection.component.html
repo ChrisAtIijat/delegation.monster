@@ -1,0 +1,54 @@
+<div class="content">
+  <!-- <p>connection works!</p>
+
+  <div>{{ dbConnection?.metadata?.name }}</div>
+  <div>{{ dbConnection?.pubkey }}</div>
+  <div>{{ dbConnection?.relay }}</div> -->
+
+  <delmo-section>App Details</delmo-section>
+
+  <span class="label mt-small">Name</span>
+  <span>{{ app?.metadata?.name }}</span>
+
+  <ng-container *ngIf="app?.metadata?.url">
+    <span class="label mt-normal">Url</span>
+    <span>{{ app?.metadata?.url }}</span>
+  </ng-container>
+
+  <ng-container *ngIf="app?.metadata?.description">
+    <span class="label mt-normal">Description</span>
+    <span>{{ app?.metadata?.description }}</span>
+  </ng-container>
+
+  <span class="label mt-normal">Relay</span>
+  <span>{{ app?.relay }}</span>
+
+  <div class="mt-large flex-row align-items-center gap-small">
+    <mat-icon class="color-orange-800"> east </mat-icon>
+    <span>in</span>
+  </div>
+
+  <div class="flex-row align-items-center gap-small">
+    <mat-icon class="color-green"> west </mat-icon>
+    <span>out</span>
+  </div>
+
+  <div class="flex-column mt-large">
+    <div
+      *ngFor="let log of logs | keyvalue"
+      class="flex-row align-items-center gap-small"
+    >
+      <div>{{ log.key | date : 'HH:mm:ss.SSS' }}</div>
+      <mat-icon class="color-orange-800" *ngIf="log.value.direction === 'in'">
+        east
+      </mat-icon>
+      <mat-icon
+        style="color: var(--green)"
+        *ngIf="log.value.direction === 'out'"
+      >
+        west
+      </mat-icon>
+      <div>{{ log.value.message }}</div>
+    </div>
+  </div>
+</div>

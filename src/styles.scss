@@ -1,1 +1,172 @@
-/* You can add global styles to this file, and also import other style files */
+// For more information: https://material.angular.io/guide/theming
+@use '@angular/material' as mat;
+@use '@ng-matero/extensions' as mtx;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+
+@import './styles/material.scss';
+
+$theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+    ),
+  )
+);
+
+$lightTheme: mat.define-light-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+    ),
+  )
+);
+
+@include mat.all-component-themes($theme);
+@include mtx.all-component-themes($theme);
+
+.light-theme {
+  @include mat.all-component-themes($lightTheme);
+}
+
+$my-typography: mat.define-typography-config();
+@include mat.typography-hierarchy($my-typography);
+
+@import './styles/flex.scss';
+@import './styles/overrides.scss';
+@import './styles/font.scss';
+@import './styles/margin.scss';
+@import './styles/colors.scss';
+@import './styles/typography.scss';
+
+:root {
+  --green: #adff2f;
+  --orange-500: #ffce69;
+  --orange-600: #ffc264;
+  --orange-800: #ffa35c;
+  --pink-500: #c014ba;
+  --bg: #1c1a38;
+  --bg2: #050523;
+  //   --primary-50: #c0ddd8;
+  //   --primary-100: #9bc7bf;
+  //   --primary-200: #9bc7bf;
+  //   --primary-300: #7db1a7;
+  //   --primary-400: #6da095;
+  //   --primary-500: #658f85;
+  //   --primary-600: #5e8279;
+  //   --primary-700: #56726a;
+  //   --primary-800: #50625c;
+  //   --primary-900: #3f4643;
+
+  //   --primary-light: #dbe7e4;
+
+  //   --accent-50: #fae9e5;
+  //   --accent-100: #faceb8;
+  //   --accent-200: #f6af89;
+  //   --accent-300: #f29159;
+  //   --accent-400: #ef7b32;
+  //   --accent-500: #ec6800;
+  //   --accent-600: #e26100;
+  //   --accent-700: #d45a00;
+  //   --accent-800: #c75300;
+  //   --accent-900: #b04500;
+
+  //   --warn-100: #ffcdd2;
+  //   --warn-200: #ef9a9a;
+  //   --warn-300: #e57373;
+  //   --warn-400: #ef5350;
+  //   --warn-500: #f44336;
+
+  //   --body-color-dark: #1c1d2f;
+  //   --body-background-color: #e7e7e7;
+
+  //   --blue: #517199;
+
+  //   --gray-100: #f8f9fc;
+  //   --gray-200: #f1f3f9;
+  //   --gray-300: #dee3ed;
+  //   --gray-400: #c2c9d6;
+  //   --gray-500: #8f96a3;
+  //   --gray-600: #5e636e;
+  //   --gray-700: #2f3237;
+  //   --gray-800: #1d1e20;
+  //   --gray-900: #111213;
+}
+
+html,
+body {
+  width: 100vw;
+  margin: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  //background-color: #f9fafb;
+
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+
+  //color: #6b7280;
+  font-size: 14px;
+
+  .container {
+    max-width: 704px;
+    width: 100%;
+    //padding: 0 16px;
+    box-sizing: border-box;
+  }
+}
+
+body {
+  color: #ffffff;
+  background-color: #1c1a38; // #ffffff;
+}
+
+.title {
+  font-size: 20px;
+  line-height: 32px;
+  letter-spacing: 0.15;
+}
+
+.headline {
+  font-size: 24px;
+  letter-spacing: 0;
+  line-height: 32px;
+  margin-bottom: 8px;
+}
+
+.display-1 {
+  font-size: 34px;
+  letter-spacing: 0.24;
+  line-height: 40px;
+}
+
+.small {
+  font-size: 12px !important;
+}
+
+.dense-0 {
+  @include mat.all-component-densities(0);
+}
+
+.dense-1 {
+  @include mat.all-component-densities(-1);
+}
+
+.dense-2 {
+  @include mat.all-component-densities(-2);
+}
+
+.dense-3 {
+  @include mat.all-component-densities(-3);
+}

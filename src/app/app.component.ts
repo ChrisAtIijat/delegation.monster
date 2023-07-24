@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'delegation.monster-root',
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: 'delmo-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })

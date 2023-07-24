@@ -1,0 +1,27 @@
+<h1 mat-dialog-title class="header">{{ data.title }}</h1>
+
+<mat-dialog-content>
+  <div class="flex-column mat-body">
+    <span *ngIf="data.text" [innerHTML]="data.text"></span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button class="button-big" color="warn" (click)="onClickOk()">
+    <div class="flex-row align-items-center gap-tiny">
+      <div style="font-size: 16px; font-weight: 600">YES</div>
+    </div>
+  </button>
+
+  <button
+    mat-stroked-button
+    class="button-big"
+    style="border-color: initial"
+    color="warn"
+    (click)="onClickNotOk()"
+  >
+    <div class="flex-row">
+      <div style="font-size: 16px; font-weight: 600">NO</div>
+    </div>
+  </button>
+</mat-dialog-actions>

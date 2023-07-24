@@ -1,0 +1,71 @@
+<div class="flex-column">
+  <a class="menu-button" routerLink="/home" (click)="drawer.dismiss()">
+    <mat-icon class="reduced">home</mat-icon>
+    <span>Home</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/ids" (click)="drawer.dismiss()">
+    <mat-icon class="orange">vpn_key</mat-icon>
+    <span>Identities</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/apps" (click)="drawer.dismiss()">
+    <mat-icon class="orange">link</mat-icon>
+    <span>Apps</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/faq" (click)="drawer.dismiss()">
+    <mat-icon class="reduced">question_mark</mat-icon>
+    <span>FAQ</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a
+    class="menu-button"
+    routerLink="/nip46-test-app"
+    (click)="drawer.dismiss()"
+  >
+    <mat-icon class="reduced">bug_report</mat-icon>
+    <span>NIP-46 Test App</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/contact" (click)="drawer.dismiss()">
+    <mat-icon class="reduced">contact_support</mat-icon>
+    <span>Contact & Support</span>
+  </a>
+
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/settings" (click)="drawer.dismiss()">
+    <mat-icon class="reduced">settings</mat-icon>
+    <span>Settings</span>
+  </a>
+
+  <mat-divider></mat-divider>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <div class="flex-column align-items-center small-gray">
+    <span>App version {{ version }}</span>
+    <span>&copy; {{ year }} by IIJAT</span>
+
+    <div class="links">
+      <a routerLink="/terms-of-service" (click)="drawer.dismiss()"
+        >Terms of Service</a
+      >
+      <a routerLink="/privacy-policy" (click)="drawer.dismiss()"
+        >Privacy Policy</a
+      >
+    </div>
+  </div>
+</div>

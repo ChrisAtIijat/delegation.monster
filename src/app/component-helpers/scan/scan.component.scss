@@ -1,0 +1,78 @@
+:host {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow-y: hidden;
+
+  background-color: #1c1a38;
+}
+
+::ng-deep .ngx-scanner-qrcode {
+  width: 100%;
+  height: 100%;
+
+  .origin-overlay {
+    visibility: hidden;
+  }
+
+  .origin-video {
+    object-fit: cover !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.app-layer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr;
+
+  .all {
+    grid-row-start: 1;
+    grid-row-end: 4;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    display: flex;
+  }
+
+  .close {
+    grid-row-start: 1;
+    grid-row-end: 2;
+    grid-column-start: 1;
+    grid-column-end: 2;
+
+    justify-self: flex-end;
+
+    margin: 16px 16px;
+  }
+
+  .bottom {
+    grid-row-start: 3;
+    grid-row-end: 4;
+    grid-column-start: 1;
+    grid-column-end: 2;
+
+    justify-self: center;
+  }
+}
+
+.crop-icon {
+  font-size: 256px;
+  width: auto;
+  height: auto;
+
+  color: rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,17 @@
+<div class="flex-column ml-normal mr-normal mt-normal">
+  <delmo-section>Apps</delmo-section>
+
+  <ng-container *ngIf="apps.length === 0">
+    <!-- HAS NO APPS -->
+    <span>You do not have any connected apps.</span>
+  </ng-container>
+
+  <ng-container *ngIf="apps.length > 0">
+    <!-- HAS APPS -->
+    <div class="flex-column gap-tiny">
+      <div *ngFor="let app of apps" class="app" (click)="onClickApp(app)">
+        <div style="color: var(--green)">{{ app.metadata.name }}</div>
+      </div>
+    </div>
+  </ng-container>
+</div>

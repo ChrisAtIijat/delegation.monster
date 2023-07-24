@@ -1,0 +1,22 @@
+<div class="flex-column ml-normal mr-normal mt-normal">
+  <delmo-section>Settings</delmo-section>
+
+  <span class="section mt-large-x2">DANGER ZONE</span>
+
+  <span class="mt-small">
+    In case you want to start from scratch, you can reset the local database.
+    All data will be deleted. This action is irreversible, use with care.
+  </span>
+
+  <button
+    mat-flat-button
+    color="warn"
+    class="button-big mt-normal"
+    (click)="resetDb()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>delete_forever</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">RESET DB</div>
+    </div>
+  </button>
+</div>
