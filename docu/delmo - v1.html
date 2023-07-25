@@ -1,0 +1,106 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <style type="text/css">
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+        background-color: rgb(28, 26, 56);
+      }
+
+      .flex-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .flex-column {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-end {
+        align-items: flex-end;
+      }
+
+      .primary-color {
+        color: #517199;
+      }
+
+      .accent-color {
+        color: #f29159;
+      }
+
+      .icon {
+        font-size: 6rem !important;
+        margin-right: 0.75rem;
+        color: #f29159;
+      }
+
+      .font-weight-500 {
+        font-weight: 500;
+      }
+
+      .mt-small {
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex-row align-items-center">
+      <img
+        src="https://nip05assets.blob.core.windows.net/public/delmo-monster-6.svg"
+        alt=""
+        width="256px"
+      />
+      <div class="flex-column" style="align-items: center">
+        <div class="flex-row align-items-center">
+          <div class="flex-column align-items-end" style="font-size: 4rem">
+            <div class="accent-color font-weight-500">delegation</div>
+            <div
+              class="accent-color font-weight-500"
+              style="font-size: 2rem; margin-top: -16px"
+            >
+              .monster
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="font-weight-500"
+          style="
+            margin-top: 16px;
+            font-size: 2.3rem;
+            font-weight: 600;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+            transform: rotate(-2deg);
+          "
+        >
+          a Nostr Connect Wallet
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
