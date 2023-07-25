@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.1.1
+
+_Release 07/25/2023_
+
+#### Features
+
+- Add preview data (image and meta data).
+
 # 0.1.0
 
 _Release 07/24/2023_
