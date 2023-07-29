@@ -15,3 +15,49 @@
     </div>
   </ng-container>
 </div>
+
+<!-- OVERLAY APP -->
+<div *ngIf="isOverlayEditAppVisible" class="overlay-edit-app">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="isOverlayEditAppVisible = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <delmo-section>App</delmo-section>
+
+  <span class="mt-small label">Name</span>
+  <span>{{ selectedApp?.metadata?.name }}</span>
+
+  <ng-container *ngIf="selectedApp?.metadata?.url">
+    <span class="label mt-normal">Url</span>
+    <span>{{ selectedApp?.metadata?.url }}</span>
+  </ng-container>
+
+  <ng-container *ngIf="selectedApp?.metadata?.description">
+    <span class="label mt-normal">Description</span>
+    <span>{{ selectedApp?.metadata?.description }}</span>
+  </ng-container>
+
+  <span class="label mt-normal">Relay</span>
+  <span>{{ selectedApp?.relay }}</span>
+
+  <span class="label mt-normal">App Pubkey</span>
+  <span>{{ selectedApp?.pubkey }}</span>
+
+  <span class="section mt-large-x2">DANGER ZONE</span>
+  <button
+    mat-flat-button
+    color="warn"
+    class="button-big mt-small"
+    (click)="onClickDeleteApp()"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>delete</mat-icon>
+      <div style="font-size: 16px; font-weight: 600">DELETE</div>
+    </div>
+  </button>
+</div>
