@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.1.2
+
+_Release 07/29/2023_
+
+#### Features
+
+- Added an app view when clicking on an app.
+
+# Changelog
+
 # 0.1.1
 
 _Release 07/25/2023_
