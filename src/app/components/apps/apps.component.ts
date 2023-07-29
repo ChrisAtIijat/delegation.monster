@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RxDocument } from 'rxdb';
+import { Subscription } from 'rxjs';
 import { AppDocType } from 'src/app/models/rxdb/schemas/app';
+import { ConfirmService } from 'src/app/services/confirm.service';
 import { RxdbService } from 'src/app/services/rxdb.service';
 
 @Component({
@@ -9,33 +11,57 @@ import { RxdbService } from 'src/app/services/rxdb.service';
   templateUrl: './apps.component.html',
   styleUrls: ['./apps.component.scss'],
 })
-export class AppsComponent implements OnInit {
+export class AppsComponent implements OnInit, OnDestroy {
   apps: RxDocument<AppDocType>[] = [];
   selectedApp: RxDocument<AppDocType> | undefined;
+  isOverlayEditAppVisible = false;
 
-  constructor(private _rxdbService: RxdbService) {}
+  private _appsSubscription: Subscription | undefined;
+
+  constructor(
+    private _rxdbService: RxdbService,
+    private _confirmService: ConfirmService
+  ) {}
 
   ngOnInit(): void {
-    this._loadKeys();
+    this._loadApps();
+  }
+
+  ngOnDestroy(): void {
+    this._appsSubscription?.unsubscribe();
   }
 
   onClickApp(app: RxDocument<AppDocType>) {
-    //
+    this.selectedApp = app;
+    this.isOverlayEditAppVisible = true;
   }
 
-  private async _loadKeys() {
-    const dbApps = await this._rxdbService.db?.apps
+  private async _loadApps() {
+    this._appsSubscription = await this._rxdbService.db?.apps
       .find({
         selector: {},
       })
-      .exec();
+      .$.subscribe((apps) => {
+        this.apps = apps;
+      });
+  }
 
-    if (!dbApps) {
+  onClickDeleteApp() {
+    if (!this.selectedApp) {
       return;
     }
 
-    this.apps = Array.from(dbApps).sort((a, b) => {
-      return a.metadata.name.localeCompare(b.metadata.name);
-    });
+    this._confirmService.open(
+      'Please confirm',
+      'Do you really want to delete this app?',
+      async () => {
+        await this.selectedApp?.remove();
+        this.isOverlayEditAppVisible = false;
+      },
+      undefined,
+      async () => {
+        (document.activeElement as HTMLElement)?.blur();
+      }
+    );
   }
 }
