@@ -1,0 +1,56 @@
+import { RxJsonSchema } from 'rxdb';
+
+export type DelegationDocType = {
+  id: string;
+  delegateePubkey: string;
+  delegatorPubkey: string;
+  kinds: number[];
+  from?: number;
+  until?: number;
+  conditions: string;
+  token: string;
+};
+
+export const delegationSchema: RxJsonSchema<DelegationDocType> = {
+  version: 0,
+  type: 'object',
+  primaryKey: 'id',
+  properties: {
+    id: {
+      type: 'string',
+      maxLength: 100,
+    },
+    delegateePubkey: {
+      type: 'string',
+    },
+    delegatorPubkey: {
+      type: 'string',
+    },
+    kinds: {
+      type: 'array',
+      items: {
+        type: 'integer',
+      },
+    },
+    from: {
+      type: 'integer',
+    },
+    until: {
+      type: 'integer',
+    },
+    conditions: {
+      type: 'string',
+    },
+    token: {
+      type: 'string',
+    },
+  },
+  required: [
+    'id',
+    'delegateePubkey',
+    'delegatorPubkey',
+    'kinds',
+    'conditions',
+    'token',
+  ],
+};
