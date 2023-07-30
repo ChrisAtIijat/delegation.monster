@@ -51,6 +51,7 @@ import { ConfirmDialogComponent } from './component-dialogs/confirm-dialog/confi
 import { DebugComponent } from './components/debug/debug.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { PasteUriComponent } from './component-helpers/paste-uri/paste-uri.component';
+import { DelegationsComponent } from './components/delegations/delegations.component';
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBDevModePlugin);
@@ -84,6 +85,7 @@ addRxPlugin(RxDBDevModePlugin);
     ConfirmDialogComponent,
     DebugComponent,
     ContactComponent,
+    DelegationsComponent,
   ],
   imports: [
     FormsModule,
