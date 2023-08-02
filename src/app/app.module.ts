@@ -5,9 +5,11 @@ import { AppComponent } from './app.component';
 import { appRoutes } from './app.routes';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
+import { MtxDatetimepickerModule } from '@ng-matero/extensions/datetimepicker';
 import { MtxDrawerModule } from '@ng-matero/extensions/drawer';
 import { MtxPopoverModule } from '@ng-matero/extensions/popover';
 import { QRCodeModule } from 'angularx-qrcode';
@@ -51,6 +54,8 @@ import { ConfirmDialogComponent } from './component-dialogs/confirm-dialog/confi
 import { DebugComponent } from './components/debug/debug.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { PasteUriComponent } from './component-helpers/paste-uri/paste-uri.component';
+import { DelegationsComponent } from './components/delegations/delegations.component';
+import { MatNativeDateModule } from '@angular/material/core';
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBDevModePlugin);
@@ -84,6 +89,7 @@ addRxPlugin(RxDBDevModePlugin);
     ConfirmDialogComponent,
     DebugComponent,
     ContactComponent,
+    DelegationsComponent,
   ],
   imports: [
     FormsModule,
@@ -91,16 +97,20 @@ addRxPlugin(RxDBDevModePlugin);
     BrowserAnimationsModule,
     RouterModule.forRoot(appRoutes, { initialNavigation: 'enabledBlocking' }),
     ReactiveFormsModule,
+
     MatBottomSheetModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatDatepickerModule,
     MatDialogModule,
     MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatNativeDateModule,
     MatSelectModule,
 
+    MtxDatetimepickerModule,
     MtxDrawerModule,
     MtxPopoverModule,
     QRCodeModule,

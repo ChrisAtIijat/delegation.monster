@@ -11,6 +11,7 @@ import { PpComponent } from './components/pp/pp.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { DebugComponent } from './components/debug/debug.component';
 import { ContactComponent } from './components/contact/contact.component';
+import { DelegationsComponent } from './components/delegations/delegations.component';
 
 export const appRoutes: Route[] = [
   {
@@ -61,6 +62,10 @@ export const appRoutes: Route[] = [
       {
         path: 'contact',
         component: ContactComponent,
+      },
+      {
+        path: 'delegations',
+        component: DelegationsComponent,
       },
     ],
   },
