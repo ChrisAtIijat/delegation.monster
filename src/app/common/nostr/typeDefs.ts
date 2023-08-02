@@ -7,3 +7,10 @@ export type NostrPrivkeyObject = {
   hex: string;
   nsec: string;
 };
+
+export type DelegationRequest = {
+  delegateePubkey: string;
+  kinds: number[];
+  until?: number;
+  since?: number;
+};
