@@ -1,0 +1,48 @@
+<div class="delegation" (click)="onClickDelegation(delegation)">
+  <div class="delegation-grid gap-normal">
+    <div class="kind-area">
+      <span class="font-size-12">Kind</span>
+      <span style="font-weight: 600">{{ delegation.kinds[0] }}</span>
+    </div>
+
+    <div class="flex-column gap-tiny align-items-center">
+      <div class="id-area">
+        <div class="font-size-12" style="color: lightgray">
+          Identity {{ getKey(delegation.delegatorPubkey)?.nid }}
+        </div>
+        <div style="color: var(--green)">
+          {{ getKey(delegation.delegatorPubkey)?.nick }}
+        </div>
+      </div>
+
+      <mat-icon class="align-self-center"> south </mat-icon>
+
+      <div class="id-area">
+        <div class="font-size-12" style="color: lightgray">
+          Identity {{ getKey(delegation.delegateePubkey)?.nid }}
+        </div>
+        <div style="color: var(--green)">
+          {{ getKey(delegation.delegateePubkey)?.nick }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="align-self-center flex-column gap-small align-items-center font-size-14"
+    >
+      <span>
+        {{
+          getDate(delegation.from)
+            | date : localeService.getDateTimeFormat(locale)
+        }}
+      </span>
+      <span>-</span>
+      <span>
+        {{
+          getDate(delegation.until)
+            | date : localeService.getDateTimeFormat(locale)
+        }}
+      </span>
+    </div>
+  </div>
+</div>

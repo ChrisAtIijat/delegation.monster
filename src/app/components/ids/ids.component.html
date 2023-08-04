@@ -16,6 +16,31 @@
           </div>
           <div style="color: var(--green)">{{ key.nick }}</div>
         </div>
+        <div
+          *ngFor="let delegation of getActiveDelegations(key.pubkey)"
+          class="justify-content-end flex-row align-items-center gap-normal"
+        >
+          <span class="font-size-12">
+            with <b>KIND {{ delegation.kinds[0] }}</b> delegation from
+          </span>
+          <!-- has key in database -->
+          <ng-container
+            *ngIf="hasKey(delegation.delegatorPubkey); else hasNoKey"
+          >
+            <span class="font-size-12" style="color: lightgray">
+              Identity
+              {{ getKey(delegation.delegatorPubkey)?.nid }}
+            </span>
+            <div style="color: var(--green)">
+              {{ getKey(delegation.delegatorPubkey)?.nick }}
+            </div>
+          </ng-container>
+
+          <!-- has NO key in database -->
+          <ng-template #hasNoKey>
+            {{ delegation.delegatorPubkey }}
+          </ng-template>
+        </div>
       </div>
     </div>
   </ng-container>

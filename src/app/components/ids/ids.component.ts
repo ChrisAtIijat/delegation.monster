@@ -11,6 +11,7 @@ import { PasteKeyComponent } from 'src/app/component-helpers/paste-key/paste-key
 import { Subscription } from 'rxjs';
 import { ConfirmService } from 'src/app/services/confirm.service';
 import { generatePrivateKey, getPublicKey } from '@iijat-sw/nip46';
+import { DelegationDocType } from 'src/app/models/rxdb/schemas/delegation';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -24,6 +25,7 @@ export class IdsComponent implements OnInit {
 
   keys: RxDocument<KeyDocType>[] = [];
   selectedKey: RxDocument<KeyDocType> | undefined;
+  delegations: RxDocument<DelegationDocType>[] = [];
 
   keysSubscription: Subscription | undefined;
 
@@ -34,7 +36,9 @@ export class IdsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this._loadKeys();
+    this._loadDelegations().then(() => {
+      this._loadKeys();
+    });
   }
 
   async importExistingKey() {
@@ -87,19 +91,6 @@ export class IdsComponent implements OnInit {
     this.isIdEditVisible = true;
   }
 
-  private async _loadKeys() {
-    this.keysSubscription = await this._rxdbService.db?.keys
-      .find({
-        selector: {
-          usage: KeyDocTypeUsage.User,
-        },
-        sort: [{ createdAt: 'asc' }],
-      })
-      .$.subscribe((keys) => {
-        this.keys = keys;
-      });
-  }
-
   async onChangeNick(event: any) {
     if (!this.selectedKey) {
       return;
@@ -131,5 +122,65 @@ export class IdsComponent implements OnInit {
         (document.activeElement as HTMLElement)?.blur();
       }
     );
+  }
+
+  getActiveDelegations(
+    delegateePubkey: string
+  ): RxDocument<DelegationDocType>[] {
+    return this.delegations.filter(
+      (x) =>
+        x.delegateePubkey === delegateePubkey && this.isActive(x.from, x.until)
+    );
+  }
+
+  getKey(pubkey: string): RxDocument<KeyDocType> | undefined {
+    return this.keys.find((x) => x.pubkey === pubkey);
+  }
+
+  hasKey(pubkey: string): boolean {
+    return typeof this.keys.find((x) => x.pubkey === pubkey) !== 'undefined';
+  }
+
+  private async _loadDelegations() {
+    if (!this._rxdbService.db) {
+      return;
+    }
+
+    this.delegations = await this._rxdbService.db.delegations.find({}).exec();
+  }
+
+  private async _loadKeys() {
+    this.keysSubscription = await this._rxdbService.db?.keys
+      .find({
+        selector: {
+          usage: KeyDocTypeUsage.User,
+        },
+        sort: [{ createdAt: 'asc' }],
+      })
+      .$.subscribe((keys) => {
+        this.keys = keys;
+      });
+  }
+
+  private isActive(from: number | undefined, until: number | undefined) {
+    const now = new Date().getTime() / 1000;
+
+    if (!from && !until) {
+      return true;
+    }
+
+    if (!from && until) {
+      return now < until;
+    }
+
+    if (from && !until) {
+      return now > from;
+    }
+
+    if (from && until) {
+      return now > from && now < until;
+    }
+
+    return false; // will not happen :-)
   }
 }

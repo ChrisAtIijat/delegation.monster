@@ -1,0 +1,47 @@
+@import './dimensions.scss';
+
+.grid-2 {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+
+  &.gap-tiny {
+    column-gap: $tiny;
+  }
+
+  &.gap-small {
+    column-gap: $small;
+  }
+
+  &.gap-normal {
+    column-gap: $normal;
+  }
+
+  &.gap-large {
+    column-gap: $large;
+  }
+}
+
+.grid-auto-1fr {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto;
+
+  &.gap-tiny {
+    column-gap: $tiny;
+  }
+
+  &.gap-small {
+    column-gap: $small;
+  }
+
+  &.gap-normal {
+    column-gap: $normal;
+  }
+
+  &.gap-large {
+    column-gap: $large;
+  }
+}

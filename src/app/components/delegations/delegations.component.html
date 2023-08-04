@@ -1,0 +1,201 @@
+<div class="flex-column ml-normal mr-normal mt-normal">
+  <delmo-section>Delegations</delmo-section>
+
+  <ng-container *ngIf="delegations.length === 0">
+    <!-- HAS NO KEYS -->
+    <span>You do not have any delegations.</span>
+  </ng-container>
+
+  <ng-container *ngIf="hasActiveDelegations">
+    <!-- HAS ACTIVE DELEGATIONS -->
+    <span class="section mb-tiny">ACTIVE</span>
+    <div class="flex-column gap-tiny mb-large">
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isActive(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="hasFutureDelegations">
+    <!-- HAS FUTURE DELEGATIONS -->
+    <span class="section mb-tiny">FUTURE</span>
+    <div class="flex-column gap-tiny mb-large">
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isFuture(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="hasPastDelegations">
+    <!-- HAS EXPIRED DELEGATIONS -->
+    <span class="section mb-tiny">EXPIRED</span>
+    <div class="flex-column gap-tiny mb-large">
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isPast(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<div class="new-delegation-button-container">
+  <button
+    mat-fab
+    color="primary"
+    style="pointer-events: all"
+    (click)="showOverlayNewDelegation = true"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<!-- OVERLAY: NEW DELEGATION -->
+<div *ngIf="showOverlayNewDelegation" class="new-delegation-overlay">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="showOverlayNewDelegation = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="section">CREATE DELEGATION</div>
+
+  <span class="mt-large label mb-small">KIND</span>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-select
+      [(ngModel)]="newDelegation.kind"
+      (ngModelChange)="newDelegation.evaluateCanCreate()"
+    >
+      <mat-option
+        *ngFor="let kind of mixedService.nostrKindMap | keyvalue"
+        [value]="kind.key"
+      >
+        {{ kind.key }} - {{ kind.value }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <span class="mt-large label mb-small">DURING</span>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-date-range-input
+      [formGroup]="newDelegation.range"
+      [rangePicker]="picker"
+      [min]="newDelegation.minFrom"
+    >
+      <input matStartDate formControlName="from" placeholder="Start date" />
+      <input matEndDate formControlName="until" placeholder="End date" />
+    </mat-date-range-input>
+
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-date-range-picker touchUi #picker></mat-date-range-picker>
+  </mat-form-field>
+
+  <span class="mt-large label mb-small">FROM</span>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-select [formControl]="newDelegation.delegator">
+      <mat-option *ngFor="let id of keys" [value]="id">
+        Identity {{ id.nid }}: {{ id.nick }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <span class="mt-large label mb-small">TO</span>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-select [formControl]="newDelegation.delegatee">
+      <mat-option *ngFor="let id of keys" [value]="id">
+        Identity {{ id.nid }}: {{ id.nick }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    color="primary"
+    class="button-big mt-large"
+    (click)="onClickCreateDelegation()"
+    [disabled]="!newDelegation.canCreate"
+  >
+    <div class="flex-row align-items-center gap-tiny">
+      <mat-icon>add_circle_outline</mat-icon>
+      <div style="font-size: 16px; line-height: 17px; font-weight: 600">
+        CREATE
+      </div>
+    </div>
+  </button>
+</div>
+
+<!-- SHOW OVERLAY: EDIT DELEGATION -->
+<div *ngIf="showOverlayEditDelegation" class="edit-delegation-overlay">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="showOverlayEditDelegation = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="section">DELEGATION</div>
+
+  <ng-container *ngIf="selectedDelegation">
+    <span class="label mt-small">Kind</span>
+    <span *ngIf="selectedDelegation">{{ selectedDelegation.kinds[0] }}</span>
+
+    <span class="label mt-normal">Delegator</span>
+    <span>
+      Identity {{ getKey(selectedDelegation.delegatorPubkey)?.nid }}:
+      {{ getKey(selectedDelegation.delegatorPubkey)?.nick }}
+    </span>
+
+    <span class="label mt-normal">Delegatee</span>
+    <span>
+      Identity {{ getKey(selectedDelegation.delegateePubkey)?.nid }}:
+      {{ getKey(selectedDelegation.delegateePubkey)?.nick }}
+    </span>
+
+    <span class="label mt-normal">From</span>
+    <span>
+      {{
+        getDate(selectedDelegation.from)
+          | date : localeService.getDateTimeFormat(locale)
+      }}
+    </span>
+
+    <span class="label mt-normal">Until</span>
+    <span>
+      {{
+        getDate(selectedDelegation.until)
+          | date : localeService.getDateTimeFormat(locale)
+      }}
+    </span>
+
+    <span class="section mt-large-x2">DANGER ZONE</span>
+    <button
+      mat-flat-button
+      color="warn"
+      class="button-big mt-small"
+      (click)="onClickDeleteDelegation(selectedDelegation)"
+    >
+      <div class="flex-row align-items-center gap-tiny">
+        <mat-icon>delete</mat-icon>
+        <div style="font-size: 16px; font-weight: 600">DELETE</div>
+      </div>
+    </button>
+  </ng-container>
+</div>

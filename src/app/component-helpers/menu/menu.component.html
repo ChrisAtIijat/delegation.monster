@@ -6,18 +6,22 @@
 
   <mat-divider></mat-divider>
 
-  <a class="menu-button" routerLink="/ids" (click)="drawer.dismiss()">
-    <mat-icon class="orange">vpn_key</mat-icon>
-    <span>Identities</span>
-  </a>
-
-  <mat-divider></mat-divider>
-
   <a class="menu-button" routerLink="/apps" (click)="drawer.dismiss()">
     <mat-icon class="orange">link</mat-icon>
     <span>Apps</span>
   </a>
+  <mat-divider></mat-divider>
 
+  <a class="menu-button" routerLink="/ids" (click)="drawer.dismiss()">
+    <mat-icon class="orange">vpn_key</mat-icon>
+    <span>Identities</span>
+  </a>
+  <mat-divider></mat-divider>
+
+  <a class="menu-button" routerLink="/delegations" (click)="drawer.dismiss()">
+    <mat-icon class="orange">groups</mat-icon>
+    <span>Delegations</span>
+  </a>
   <mat-divider></mat-divider>
 
   <a class="menu-button" routerLink="/faq" (click)="drawer.dismiss()">

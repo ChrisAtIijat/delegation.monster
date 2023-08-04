@@ -18,6 +18,7 @@ import { Subject } from 'rxjs';
 import { createRxDatabase, addRxPlugin } from 'rxdb';
 import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
 import { generatePrivateKey, getPublicKey } from '@iijat-sw/nip46';
+import { delegationSchema } from '../models/rxdb/schemas/delegation';
 
 export enum RxdbServiceState {
   FirstTimeDbRun = 1,
@@ -216,6 +217,9 @@ export class RxdbService {
     await this._db?.addCollections({
       apps: {
         schema: appSchema,
+      },
+      delegations: {
+        schema: delegationSchema,
       },
       keys: {
         schema: keySchema,

@@ -50,6 +50,7 @@ $my-typography: mat.define-typography-config();
 @import './styles/margin.scss';
 @import './styles/colors.scss';
 @import './styles/typography.scss';
+@import './styles/grid.scss';
 
 :root {
   --green: #adff2f;
