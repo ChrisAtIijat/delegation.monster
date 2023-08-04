@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.2.0
+
+_Release 08/04/2023_
+
+#### Features
+
+- Added management of delegations (create, view, delete). Still missing the usage inside event signing.
+
+# Changelog
+
 # 0.1.2
 
 _Release 07/29/2023_
