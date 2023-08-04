@@ -6,61 +6,48 @@
     <span>You do not have any delegations.</span>
   </ng-container>
 
-  <ng-container *ngIf="delegations.length > 0">
-    <!-- HAS DELEGATIONS -->
+  <ng-container *ngIf="hasActiveDelegations">
+    <!-- HAS ACTIVE DELEGATIONS -->
+    <span class="section mb-tiny">ACTIVE</span>
     <div class="flex-column gap-tiny mb-large">
-      <div
-        *ngFor="let delegation of delegations"
-        class="delegation"
-        (click)="onClickDelegation(delegation)"
-      >
-        <div class="delegation-grid gap-normal">
-          <div class="kind-area">
-            <span class="font-size-12">Kind</span>
-            <span style="font-weight: 600">{{ delegation.kinds[0] }}</span>
-          </div>
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isActive(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
+    </div>
+  </ng-container>
 
-          <div class="flex-column gap-tiny align-items-center">
-            <div class="id-area">
-              <div class="font-size-12" style="color: lightgray">
-                Identity {{ getKey(delegation.delegatorPubkey)?.nid }}
-              </div>
-              <div style="color: var(--green)">
-                {{ getKey(delegation.delegatorPubkey)?.nick }}
-              </div>
-            </div>
+  <ng-container *ngIf="hasFutureDelegations">
+    <!-- HAS FUTURE DELEGATIONS -->
+    <span class="section mb-tiny">FUTURE</span>
+    <div class="flex-column gap-tiny mb-large">
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isFuture(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
+    </div>
+  </ng-container>
 
-            <mat-icon class="align-self-center"> south </mat-icon>
-
-            <div class="id-area">
-              <div class="font-size-12" style="color: lightgray">
-                Identity {{ getKey(delegation.delegateePubkey)?.nid }}
-              </div>
-              <div style="color: var(--green)">
-                {{ getKey(delegation.delegateePubkey)?.nick }}
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="align-self-center flex-column gap-small align-items-center font-size-14"
-          >
-            <span>
-              {{
-                getDate(delegation.from)
-                  | date : localeService.getDateTimeFormat(locale)
-              }}
-            </span>
-            <span>-</span>
-            <span>
-              {{
-                getDate(delegation.until)
-                  | date : localeService.getDateTimeFormat(locale)
-              }}
-            </span>
-          </div>
-        </div>
-      </div>
+  <ng-container *ngIf="hasPastDelegations">
+    <!-- HAS EXPIRED DELEGATIONS -->
+    <span class="section mb-tiny">EXPIRED</span>
+    <div class="flex-column gap-tiny mb-large">
+      <ng-container *ngFor="let delegation of delegations">
+        <delmo-delegation
+          *ngIf="isPast(delegation.from, delegation.until)"
+          [delegation]="delegation"
+          [keys]="keys"
+          (onClick)="onClickDelegation($event)"
+        ></delmo-delegation>
+      </ng-container>
     </div>
   </ng-container>
 </div>
