@@ -4,10 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class LocaleService {
-  constructor() {}
-
   getDateTimeFormat(locale: string) {
-    console.log(locale);
     if (locale === 'en' || locale.includes('en-')) {
       return 'MM/dd/yyyy HH:mm';
     } else {
