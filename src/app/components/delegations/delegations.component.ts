@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DateTime } from 'luxon';
 import { RxDocument } from 'rxdb';
@@ -9,6 +9,9 @@ import { nip26 } from 'nostr-tools';
 import { v4 } from 'uuid';
 import { DelegationDocType } from 'src/app/models/rxdb/schemas/delegation';
 import { Subscription } from 'rxjs';
+import { ConfirmService } from 'src/app/services/confirm.service';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { LocaleService } from 'src/app/services/locale.service';
 
 class NewDelegation {
   canCreate = false;
@@ -20,7 +23,11 @@ class NewDelegation {
       DateTime.now().startOf('day').toJSDate()
     ),
     until: new FormControl<Date | null>(
-      DateTime.now().startOf('day').plus({ days: 30 }).toJSDate()
+      DateTime.now()
+        .endOf('day')
+        .plus({ seconds: -1 })
+        .plus({ days: 30 })
+        .toJSDate()
     ),
   });
 
@@ -99,17 +106,21 @@ class NewDelegation {
 })
 export class DelegationsComponent implements OnInit, OnDestroy {
   showOverlayNewDelegation = false;
+  showOverlayEditDelegation = false;
 
-  //
   newDelegation = new NewDelegation();
   delegations: RxDocument<DelegationDocType>[] = [];
+  selectedDelegation: RxDocument<DelegationDocType> | undefined;
   keys: RxDocument<KeyDocType>[] = [];
 
   private _delegationsSubscriptions: Subscription | undefined;
 
   constructor(
     public mixedService: MixedService,
-    private _rxdbService: RxdbService
+    private _rxdbService: RxdbService,
+    private _confirmService: ConfirmService,
+    @Inject(MAT_DATE_LOCALE) public locale: string,
+    public localeService: LocaleService
   ) {}
 
   ngOnInit(): void {
@@ -140,9 +151,13 @@ export class DelegationsComponent implements OnInit, OnDestroy {
       const since = Math.round(
         this.newDelegation.range.controls.from.value.getTime() / 1000
       );
-      const until = Math.round(
-        this.newDelegation.range.controls.until.value.getTime() / 1000
-      );
+
+      const adjustedUntil = DateTime.fromJSDate(
+        this.newDelegation.range.controls.until.value as Date
+      )
+        .endOf('day')
+        .plus({ seconds: -1 });
+      const until = Math.round(adjustedUntil.toJSDate().getTime() / 1000);
 
       const delegation = nip26.createDelegation(
         this.newDelegation.delegator.value.privkey,
@@ -167,6 +182,7 @@ export class DelegationsComponent implements OnInit, OnDestroy {
       });
       await this._loadKeys();
       this.showOverlayNewDelegation = false;
+      this.newDelegation = new NewDelegation();
     } catch (error) {
       // TODO
       console.log(error);
@@ -174,7 +190,23 @@ export class DelegationsComponent implements OnInit, OnDestroy {
   }
 
   async onClickDelegation(delegation: RxDocument<DelegationDocType>) {
-    // TODO
+    this.selectedDelegation = delegation;
+    this.showOverlayEditDelegation = true;
+  }
+
+  async onClickDeleteDelegation(delegation: RxDocument<DelegationDocType>) {
+    this._confirmService.open(
+      'Please confirm',
+      'Do you really want to delete this delegation?',
+      async () => {
+        await delegation.remove();
+        this.showOverlayEditDelegation = false;
+      },
+      undefined,
+      async () => {
+        (document.activeElement as HTMLElement)?.blur();
+      }
+    );
   }
 
   getKey(pubkey: string): RxDocument<KeyDocType> | undefined {

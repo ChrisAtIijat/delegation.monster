@@ -14,7 +14,12 @@
         class="delegation"
         (click)="onClickDelegation(delegation)"
       >
-        <div class="grid-auto-1fr-auto gap-normal">
+        <div class="delegation-grid gap-normal">
+          <div class="kind-area">
+            <span class="font-size-12">Kind</span>
+            <span style="font-weight: 600">{{ delegation.kinds[0] }}</span>
+          </div>
+
           <div class="flex-column gap-tiny align-items-center">
             <div class="id-area">
               <div class="font-size-12" style="color: lightgray">
@@ -41,17 +46,18 @@
             class="align-self-center flex-column gap-small align-items-center font-size-14"
           >
             <span>
-              {{ getDate(delegation.from) | date : 'yyyy-MM-dd HH:mm' }}
+              {{
+                getDate(delegation.from)
+                  | date : localeService.getDateTimeFormat(locale)
+              }}
             </span>
             <span>-</span>
             <span>
-              {{ getDate(delegation.until) | date : 'yyyy-MM-dd HH:mm' }}
+              {{
+                getDate(delegation.until)
+                  | date : localeService.getDateTimeFormat(locale)
+              }}
             </span>
-          </div>
-
-          <div class="kind-area">
-            <span class="font-size-12">Kind</span>
-            <span style="font-weight: 600">{{ delegation.kinds[0] }}</span>
           </div>
         </div>
       </div>
@@ -145,4 +151,64 @@
       </div>
     </div>
   </button>
+</div>
+
+<!-- SHOW OVERLAY: EDIT DELEGATION -->
+<div *ngIf="showOverlayEditDelegation" class="edit-delegation-overlay">
+  <button
+    class="align-self-end"
+    mat-icon-button
+    style="margin-right: -12px"
+    (click)="showOverlayEditDelegation = false"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="section">DELEGATION</div>
+
+  <ng-container *ngIf="selectedDelegation">
+    <span class="label mt-small">Kind</span>
+    <span *ngIf="selectedDelegation">{{ selectedDelegation.kinds[0] }}</span>
+
+    <span class="label mt-normal">Delegator</span>
+    <span>
+      Identity {{ getKey(selectedDelegation.delegatorPubkey)?.nid }}:
+      {{ getKey(selectedDelegation.delegatorPubkey)?.nick }}
+    </span>
+
+    <span class="label mt-normal">Delegatee</span>
+    <span>
+      Identity {{ getKey(selectedDelegation.delegateePubkey)?.nid }}:
+      {{ getKey(selectedDelegation.delegateePubkey)?.nick }}
+    </span>
+
+    <span class="label mt-normal">From</span>
+    <span>
+      {{
+        getDate(selectedDelegation.from)
+          | date : localeService.getDateTimeFormat(locale)
+      }}
+    </span>
+
+    <span class="label mt-normal">Until</span>
+    <span>
+      {{
+        getDate(selectedDelegation.until)
+          | date : localeService.getDateTimeFormat(locale)
+      }}
+    </span>
+
+    <span class="section mt-large-x2">DANGER ZONE</span>
+    <button
+      mat-flat-button
+      color="warn"
+      class="button-big mt-small"
+      (click)="onClickDeleteDelegation(selectedDelegation)"
+    >
+      <div class="flex-row align-items-center gap-tiny">
+        <mat-icon>delete</mat-icon>
+        <div style="font-size: 16px; font-weight: 600">DELETE</div>
+      </div>
+    </button>
+  </ng-container>
 </div>
