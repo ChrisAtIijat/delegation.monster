@@ -81,3 +81,9 @@
 
   background: var(--bg2);
 }
+
+.nowrap {
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}

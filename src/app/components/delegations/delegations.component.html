@@ -12,7 +12,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isActive(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isActive(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"
@@ -27,7 +27,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isFuture(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isFuture(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"
@@ -42,7 +42,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isPast(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isPast(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"

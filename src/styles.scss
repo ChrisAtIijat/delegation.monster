@@ -51,6 +51,7 @@ $my-typography: mat.define-typography-config();
 @import './styles/colors.scss';
 @import './styles/typography.scss';
 @import './styles/grid.scss';
+@import './styles/overflow.scss';
 
 :root {
   --green: #adff2f;
