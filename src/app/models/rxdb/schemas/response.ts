@@ -9,12 +9,12 @@ export type ResponseDocType = {
   id: string;
   appId: string;
   response: string;
-  lastKeyId: string;
+  lastKeyId?: string;
   lastDelegationId?: string;
 };
 
 export const responseSchema: RxJsonSchema<ResponseDocType> = {
-  version: 0,
+  version: 1,
   type: 'object',
   primaryKey: 'id',
   properties: {
@@ -35,5 +35,5 @@ export const responseSchema: RxJsonSchema<ResponseDocType> = {
       type: 'string',
     },
   },
-  required: ['id', 'appId', 'response', 'lastKeyId'],
+  required: ['id', 'appId', 'response'],
 };

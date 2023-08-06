@@ -34,7 +34,9 @@
       </button>
     </ng-container>
 
-    <ng-container *ngIf="(keys?.length ?? 0) > 0; else noKeysElement">
+    <ng-container
+      *ngIf="(keysAndDelegations?.length ?? 0) > 0; else noKeysElement"
+    >
       <span class="align-self-center mb-normal mt-normal">or</span>
 
       <button
@@ -42,7 +44,7 @@
         class="button-big mb-small"
         color="primary"
         (click)="approveWithIdentity()"
-        [disabled]="!selectedKey"
+        [disabled]="!selectedKeyAndDelegation"
       >
         <div class="flex-row">
           <div style="font-size: 16px; font-weight: 600">APPROVE</div>
@@ -51,12 +53,20 @@
 
       <mat-form-field appearance="outline" color="primary">
         <mat-select
-          [(ngModel)]="selectedKey"
+          [(ngModel)]="selectedKeyAndDelegation"
           class="mt-small"
           placeholder="with identity ..."
         >
-          <mat-option *ngFor="let key of keys" [value]="key">
-            <span class="color-green">{{ key.nick }}</span>
+          <mat-option
+            *ngFor="let keyAndDelegation of keysAndDelegations"
+            [value]="keyAndDelegation"
+          >
+            <span class="color-green">
+              {{
+                keyAndDelegation.key?.nick ??
+                  keyAndDelegation.delegation?.delegatorNick
+              }}
+            </span>
           </mat-option>
         </mat-select>
       </mat-form-field>

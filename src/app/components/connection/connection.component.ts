@@ -8,6 +8,7 @@ import { Nip46Log, Nip46LogLevel } from 'src/app/common/signerLog';
 import {
   ApproveGetPublicKeyDialogComponent,
   ApproveGetPublicKeyDialogData,
+  KeyAndDelegation,
 } from 'src/app/component-dialogs/approve-dialog/approve-get-public-key-dialog.component';
 import {
   ApproveSignEventDialogComponent,
@@ -199,26 +200,12 @@ export class ConnectionComponent implements OnInit, OnDestroy {
       .subscribe(
         async ({
           pubkey,
-          key,
+          keyAndDelegation,
         }: {
           pubkey: string | undefined | null;
-          key: RxDocument<KeyDocType> | undefined;
+          keyAndDelegation: KeyAndDelegation | undefined;
         }) => {
           if (this.app && pubkey) {
-            if (key) {
-              const query = this._rxdbService.db?.apps.findOne({
-                selector: {
-                  nostrConnectUri: this.app.toURI(),
-                },
-              });
-
-              await query?.update({
-                $set: {
-                  lastKeyId: key.id,
-                },
-              });
-            }
-
             this._signerService.nip46Signer?.sendGetPublicKeyResponse(
               this.app,
               requestId,
@@ -226,7 +213,14 @@ export class ConnectionComponent implements OnInit, OnDestroy {
               undefined
             );
 
-            const details = key ? key.nick : 'extension';
+            let details = '';
+            if (typeof keyAndDelegation === 'undefined') {
+              details = 'extension';
+            } else if (typeof keyAndDelegation.key !== 'undefined') {
+              details = keyAndDelegation.key.nick;
+            } else if (typeof keyAndDelegation.delegation !== 'undefined') {
+              details = keyAndDelegation.delegation.delegatorNick ?? 'na';
+            }
 
             this._log(
               Nip46LogLevel.Nip46,
