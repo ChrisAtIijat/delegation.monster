@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.2.2
+
+_Release 08/06/2023_
+
+#### Features
+
+- [GET_PUBLIC_KEY] - Make a delegator (pubkey) selectable even when the delegator identity has been deleted (a delegation with this delegator is still active).
+
+# Changelog
+
 # 0.2.1
 
 _Release 08/06/2023_
