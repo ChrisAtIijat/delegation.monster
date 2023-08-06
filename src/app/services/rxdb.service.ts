@@ -223,6 +223,11 @@ export class RxdbService {
       },
       responses: {
         schema: responseSchema,
+        migrationStrategies: {
+          1: function (oldDoc) {
+            return oldDoc;
+          },
+        },
       },
       delegations: {
         schema: delegationSchema,

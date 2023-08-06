@@ -29,8 +29,6 @@ export type ApproveSignEventDialogResponse = {
 };
 
 export class KeyAndDelegation {
-  //key: RxDocument<KeyDocType>;
-  //delegation: RxDocument<DelegationDocType>;
   delegatorNick: string | undefined;
 
   constructor(
@@ -55,7 +53,6 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
 
   selectedKeyAndDelegation: KeyAndDelegation | undefined;
 
-  private _isSelectedKeyEvaluated = false;
   private _keysSubscription: Subscription | undefined;
   private _connectionSubscription: Subscription | undefined;
 
