@@ -11,10 +11,12 @@ import { RxDocument } from 'rxdb';
 import { Subscription } from 'rxjs';
 import { DelegationHelper } from 'src/app/common/delegationHelper';
 import { AppDocType } from 'src/app/models/rxdb/schemas/app';
+import { Response } from 'src/app/models/rxdb/schemas/response';
 import { DelegationDocType } from 'src/app/models/rxdb/schemas/delegation';
 import { KeyDocType, KeyDocTypeUsage } from 'src/app/models/rxdb/schemas/key';
 import { MixedService } from 'src/app/services/mixed.service';
 import { RxdbService } from 'src/app/services/rxdb.service';
+import { v4 } from 'uuid';
 
 export type ApproveSignEventDialogData = {
   app: Nip46Uri;
@@ -105,7 +107,11 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
   }
 
   async signWithIdentity() {
-    if (!this.selectedKeyAndDelegation || !this.connection) {
+    if (
+      !this.selectedKeyAndDelegation ||
+      !this.connection ||
+      !this._rxdbService.db
+    ) {
       return;
     }
 
@@ -139,12 +145,33 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       ...this.data.unsignedEvent,
     };
 
-    // Store selectedKey for future requests.
-    await this.connection.update({
-      $set: {
+    // Store selection for future requests.
+    const response = await this._rxdbService.db.responses
+      .findOne({
+        selector: {
+          appId: this.connection.id,
+          response: Response.SignEvent + this.data.unsignedEvent.kind,
+        },
+      })
+      .exec();
+    if (!response) {
+      // Insert new record.
+      await this._rxdbService.db.responses.insert({
+        id: v4(),
+        appId: this.connection.id,
+        response: Response.SignEvent + this.data.unsignedEvent.kind,
         lastKeyId: this.selectedKeyAndDelegation.key.id,
-      },
-    });
+        lastDelegationId: this.selectedKeyAndDelegation.delegation?.id,
+      });
+    } else {
+      // Update existing record.
+      await response.update({
+        $set: {
+          lastKeyId: this.selectedKeyAndDelegation.key.id,
+          lastDelegationId: this.selectedKeyAndDelegation.delegation?.id,
+        },
+      });
+    }
 
     const returnValue: ApproveSignEventDialogResponse = {
       signedEvent,
@@ -154,32 +181,33 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
     this._dialogRef.close(returnValue);
   }
 
-  // private _evaluateSelectedKey() {
-  //   // Make sure that both the keys and the connection has been loaded from the local database.
-  //   if (!this.keys || !this.connection) {
-  //     return;
-  //   }
+  private async _setSelectedKeyAndDelegation() {
+    const response = await this._rxdbService.db?.responses
+      .findOne({
+        selector: {
+          appId: this.connection?.id,
+          response: Response.SignEvent + this.data.unsignedEvent.kind,
+        },
+      })
+      .exec();
 
-  //   // Check if everything already was evaluated or if there actually is a "lastKeyId" available.
-  //   if (this._isSelectedKeyEvaluated || !this.connection.lastKeyId) {
-  //     return;
-  //   }
+    if (!response) {
+      return;
+    }
 
-  //   // Evaluate.
-  //   this.selectedKey = this.keys.find(
-  //     (x) => x.id === this.connection?.lastKeyId
-  //   );
-
-  //   // Make sure the evaluation is not running again.
-  //   this._isSelectedKeyEvaluated = true;
-  // }
+    this.selectedKeyAndDelegation = this.keysAndDelegations.find(
+      (x) =>
+        x.key.id === response.lastKeyId &&
+        x.delegation?.id === response.lastDelegationId
+    );
+  }
 
   private async _loadData() {
     await this._loadDelegations();
     await this._loadKeys();
     await this._loadConnection();
     this._generateKeysAndDelegations();
-    //this._evaluateSelectedKey();
+    await this._setSelectedKeyAndDelegation();
   }
 
   private async _loadDelegations() {

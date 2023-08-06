@@ -57,7 +57,6 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('DESTROY');
     this._signerService.nip46Signer?.events.removeAllListeners();
   }
 

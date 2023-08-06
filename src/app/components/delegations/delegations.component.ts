@@ -195,7 +195,6 @@ export class DelegationsComponent implements OnInit, OnDestroy {
           until,
         }
       );
-      console.log(delegation);
 
       await this._rxdbService.db?.delegations.insert({
         id: v4(),

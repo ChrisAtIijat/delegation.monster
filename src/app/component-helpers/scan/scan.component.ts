@@ -64,7 +64,6 @@ export class ScanComponent implements AfterViewInit {
   // #region Public Methods
 
   onEvent(event: ScannerQRCodeResult[]) {
-    console.log(event);
     this._checkScannedCode(event[0].value);
   }
 
