@@ -114,6 +114,41 @@ export class IdsComponent implements OnInit {
       'Please confirm',
       'Do you really want to delete this identity?',
       async () => {
+        // Check, if this identity is delegator in a delegation.
+        const delegationsAsDelegator = await this._rxdbService.db?.delegations
+          .find({
+            selector: {
+              delegatorPubkey: this.selectedKey?.pubkey,
+            },
+          })
+          .exec();
+
+        for (const delegation of delegationsAsDelegator ?? []) {
+          // Only update the delegator nick if it was not set before.
+          if (typeof delegation.delegatorNick === 'undefined') {
+            await delegation.update({
+              $set: {
+                delegatorNick: this.selectedKey?.nick,
+              },
+            });
+          }
+        }
+
+        // Check, if this identity is delegatee in a delegation.
+        const delegationsAsDelegatee = await this._rxdbService.db?.delegations
+          .find({
+            selector: {
+              delegateePubkey: this.selectedKey?.pubkey,
+            },
+          })
+          .exec();
+
+        // Remove all those delegations.
+        for (const delegation of delegationsAsDelegatee ?? []) {
+          await delegation.remove();
+        }
+
+        // Delete the identity.
         await this.selectedKey?.remove();
         this.isIdEditVisible = false;
       },

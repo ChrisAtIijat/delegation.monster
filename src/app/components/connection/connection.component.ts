@@ -57,15 +57,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('DESTROY');
     this._signerService.nip46Signer?.events.removeAllListeners();
-
-    // The below is NOT working. Why?
-    //
-    // this._signerService.nip46Signer?.events.removeListener(
-    //   Nip46SignerEvent.IncomingRequest_get_public_key,
-    //   this._handleGetPublicKeyRequest.bind(this)
-    // );
   }
 
   // #endregion Init
@@ -198,7 +190,8 @@ export class ConnectionComponent implements OnInit, OnDestroy {
     const dialog = this._matDialog.open(ApproveGetPublicKeyDialogComponent, {
       data,
       autoFocus: false,
-      maxWidth: '400px',
+      minWidth: '340px',
+      maxWidth: '500px',
     });
 
     dialog
@@ -271,7 +264,8 @@ export class ConnectionComponent implements OnInit, OnDestroy {
 
     const dialog = this._matDialog.open(ApproveSignEventDialogComponent, {
       autoFocus: false,
-      maxWidth: '400px',
+      minWidth: '340px',
+      maxWidth: '500px',
       data,
     });
 
@@ -284,7 +278,17 @@ export class ConnectionComponent implements OnInit, OnDestroy {
           undefined
         );
 
-        const details = result.key ? result.key.nick : 'extension';
+        let details = '';
+        if (typeof result.keyAndDelegation === 'undefined') {
+          details = 'extension';
+        } else if (typeof result.keyAndDelegation.delegation === 'undefined') {
+          details = result.keyAndDelegation.key.nick;
+        } else {
+          details =
+            result.keyAndDelegation.key.nick +
+            ' on behalf of ' +
+            result.keyAndDelegation.delegatorNick;
+        }
 
         this._log(Nip46LogLevel.Nip46, 'out', `sign_event (${details})`);
       } else if (!result.signedEvent && this.app) {

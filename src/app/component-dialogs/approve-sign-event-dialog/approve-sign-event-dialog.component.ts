@@ -9,10 +9,14 @@ import {
 } from '@iijat-sw/nip46';
 import { RxDocument } from 'rxdb';
 import { Subscription } from 'rxjs';
+import { DelegationHelper } from 'src/app/common/delegationHelper';
 import { AppDocType } from 'src/app/models/rxdb/schemas/app';
+import { Response } from 'src/app/models/rxdb/schemas/response';
+import { DelegationDocType } from 'src/app/models/rxdb/schemas/delegation';
 import { KeyDocType, KeyDocTypeUsage } from 'src/app/models/rxdb/schemas/key';
 import { MixedService } from 'src/app/services/mixed.service';
 import { RxdbService } from 'src/app/services/rxdb.service';
+import { v4 } from 'uuid';
 
 export type ApproveSignEventDialogData = {
   app: Nip46Uri;
@@ -21,8 +25,19 @@ export type ApproveSignEventDialogData = {
 
 export type ApproveSignEventDialogResponse = {
   signedEvent: Event | undefined;
-  key: RxDocument<KeyDocType> | undefined;
+  keyAndDelegation: KeyAndDelegation | undefined;
 };
+
+export class KeyAndDelegation {
+  //key: RxDocument<KeyDocType>;
+  //delegation: RxDocument<DelegationDocType>;
+  delegatorNick: string | undefined;
+
+  constructor(
+    public key: RxDocument<KeyDocType>,
+    public delegation: RxDocument<DelegationDocType> | undefined = undefined
+  ) {}
+}
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -32,9 +47,13 @@ export type ApproveSignEventDialogResponse = {
 })
 export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
   viewDetails = false;
-  keys: RxDocument<KeyDocType>[] | undefined;
-  connection: RxDocument<AppDocType> | null = null;
-  selectedKey: RxDocument<KeyDocType> | undefined;
+  keys: RxDocument<KeyDocType>[] = [];
+  delegations: RxDocument<DelegationDocType>[] = [];
+  connection: RxDocument<AppDocType> | undefined;
+
+  keysAndDelegations: KeyAndDelegation[] = [];
+
+  selectedKeyAndDelegation: KeyAndDelegation | undefined;
 
   private _isSelectedKeyEvaluated = false;
   private _keysSubscription: Subscription | undefined;
@@ -48,27 +67,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this._keysSubscription = this._rxdbService.db?.keys
-      .find({
-        selector: {
-          usage: KeyDocTypeUsage.User,
-        },
-      })
-      .$.subscribe((keys) => {
-        this.keys = keys;
-        this._evaluateSelectedKey();
-      });
-
-    this._connectionSubscription = this._rxdbService.db?.apps
-      .findOne({
-        selector: {
-          nostrConnectUri: this.data.app.toURI(),
-        },
-      })
-      .$.subscribe((connection) => {
-        this.connection = connection;
-        this._evaluateSelectedKey();
-      });
+    this._loadData();
   }
 
   ngOnDestroy(): void {
@@ -80,10 +79,14 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
     return JSON.stringify(this.data.unsignedEvent, null, 2);
   }
 
+  getKey(pubkey: string): RxDocument<KeyDocType> | undefined {
+    return this.keys.find((x) => x.pubkey === pubkey);
+  }
+
   decline() {
     const returnValue: ApproveSignEventDialogResponse = {
       signedEvent: undefined,
-      key: undefined,
+      keyAndDelegation: undefined,
     };
     this._dialogRef.close(returnValue);
   }
@@ -97,19 +100,52 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
 
     const returnValue: ApproveSignEventDialogResponse = {
       signedEvent,
-      key: undefined,
+      keyAndDelegation: undefined,
     };
 
     this._dialogRef.close(returnValue);
   }
 
   async signWithIdentity() {
-    if (!this.selectedKey || !this.connection) {
+    if (
+      !this.selectedKeyAndDelegation ||
+      !this.connection ||
+      !this._rxdbService.db
+    ) {
       return;
     }
 
+    // Is the a signing "on behalf of"?
+    if (this.selectedKeyAndDelegation.delegation) {
+      // Yes. It is a signing "on behalf of".
+      // Add delegation information to the unsigned event.
+      if (typeof this.data.unsignedEvent.tags === 'undefined') {
+        this.data.unsignedEvent.tags = [];
+      }
+
+      if (Array.isArray(this.data.unsignedEvent.tags)) {
+        this.data.unsignedEvent.tags.push([
+          'delegation',
+          this.selectedKeyAndDelegation.delegation.delegatorPubkey,
+          this.selectedKeyAndDelegation.delegation.conditions,
+          this.selectedKeyAndDelegation.delegation.token,
+        ]);
+      }
+
+      // Set delegatorNick
+      const delegatorKey = this.getKey(
+        this.selectedKeyAndDelegation.delegation.delegatorPubkey
+      );
+      this.selectedKeyAndDelegation.delegatorNick =
+        delegatorKey?.nick ??
+        this.selectedKeyAndDelegation.delegation.delegatorNick;
+    }
+
     const id = getEventHash(this.data.unsignedEvent);
-    const sig = getSignature(this.data.unsignedEvent, this.selectedKey.privkey);
+    const sig = getSignature(
+      this.data.unsignedEvent,
+      this.selectedKeyAndDelegation.key.privkey
+    );
 
     const signedEvent: Event = {
       id,
@@ -117,38 +153,121 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       ...this.data.unsignedEvent,
     };
 
-    // Store selectedKey for future requests.
-    await this.connection.update({
-      $set: {
-        lastKeyId: this.selectedKey.id,
-      },
-    });
+    // Store selection for future requests.
+    const response = await this._rxdbService.db.responses
+      .findOne({
+        selector: {
+          appId: this.connection.id,
+          response: Response.SignEvent + this.data.unsignedEvent.kind,
+        },
+      })
+      .exec();
+    if (!response) {
+      // Insert new record.
+      await this._rxdbService.db.responses.insert({
+        id: v4(),
+        appId: this.connection.id,
+        response: Response.SignEvent + this.data.unsignedEvent.kind,
+        lastKeyId: this.selectedKeyAndDelegation.key.id,
+        lastDelegationId: this.selectedKeyAndDelegation.delegation?.id,
+      });
+    } else {
+      // Update existing record.
+      await response.update({
+        $set: {
+          lastKeyId: this.selectedKeyAndDelegation.key.id,
+          lastDelegationId: this.selectedKeyAndDelegation.delegation?.id,
+        },
+      });
+    }
 
     const returnValue: ApproveSignEventDialogResponse = {
       signedEvent,
-      key: this.selectedKey,
+      keyAndDelegation: this.selectedKeyAndDelegation,
     };
 
     this._dialogRef.close(returnValue);
   }
 
-  private _evaluateSelectedKey() {
-    // Make sure that both the keys and the connection has been loaded from the local database.
-    if (!this.keys || !this.connection) {
+  private async _setSelectedKeyAndDelegation() {
+    const response = await this._rxdbService.db?.responses
+      .findOne({
+        selector: {
+          appId: this.connection?.id,
+          response: Response.SignEvent + this.data.unsignedEvent.kind,
+        },
+      })
+      .exec();
+
+    if (!response) {
       return;
     }
 
-    // Check if everything already was evaluated or if there actually is a "lastKeyId" available.
-    if (this._isSelectedKeyEvaluated || !this.connection.lastKeyId) {
-      return;
-    }
-
-    // Evaluate.
-    this.selectedKey = this.keys.find(
-      (x) => x.id === this.connection?.lastKeyId
+    this.selectedKeyAndDelegation = this.keysAndDelegations.find(
+      (x) =>
+        x.key.id === response.lastKeyId &&
+        x.delegation?.id === response.lastDelegationId
     );
+  }
 
-    // Make sure the evaluation is not running again.
-    this._isSelectedKeyEvaluated = true;
+  private async _loadData() {
+    await this._loadDelegations();
+    await this._loadKeys();
+    await this._loadConnection();
+    this._generateKeysAndDelegations();
+    await this._setSelectedKeyAndDelegation();
+  }
+
+  private async _loadDelegations() {
+    const delegations = await this._rxdbService.db?.delegations.find({}).exec();
+
+    this.delegations =
+      delegations?.filter(
+        (x) =>
+          x.kinds.includes(this.data.unsignedEvent.kind) &&
+          DelegationHelper.isActive(x.from, x.until)
+      ) ?? [];
+  }
+
+  private async _loadKeys() {
+    this.keys =
+      (await this._rxdbService.db?.keys
+        .find({
+          selector: {
+            usage: KeyDocTypeUsage.User,
+          },
+        })
+        .exec()) ?? [];
+  }
+
+  private async _loadConnection() {
+    this.connection =
+      (await this._rxdbService.db?.apps
+        .findOne({
+          selector: {
+            nostrConnectUri: this.data.app.toURI(),
+          },
+        })
+        .exec()) ?? undefined;
+  }
+
+  private _generateKeysAndDelegations() {
+    for (const key of this.keys) {
+      // Add this key to keysAndDelegations.
+      this.keysAndDelegations.push(new KeyAndDelegation(key));
+
+      // Find delegation (if available).
+      const delegations = this.delegations.filter(
+        (x) => x.delegateePubkey === key.pubkey
+      );
+      delegations.forEach((delegation) => {
+        // Add this delegation to keysAndDelegations.
+        const newKeyAndDelegation = new KeyAndDelegation(key, delegation);
+        newKeyAndDelegation.delegatorNick = this.getKey(
+          delegation.delegatorPubkey
+        )?.nick;
+        this.keysAndDelegations.push(newKeyAndDelegation);
+      });
+    }
   }
 }

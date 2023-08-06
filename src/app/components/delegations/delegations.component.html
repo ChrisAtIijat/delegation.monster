@@ -12,7 +12,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isActive(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isActive(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"
@@ -27,7 +27,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isFuture(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isFuture(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"
@@ -42,7 +42,7 @@
     <div class="flex-column gap-tiny mb-large">
       <ng-container *ngFor="let delegation of delegations">
         <delmo-delegation
-          *ngIf="isPast(delegation.from, delegation.until)"
+          *ngIf="delegationHelper.isPast(delegation.from, delegation.until)"
           [delegation]="delegation"
           [keys]="keys"
           (onClick)="onClickDelegation($event)"
@@ -158,10 +158,24 @@
     <span *ngIf="selectedDelegation">{{ selectedDelegation.kinds[0] }}</span>
 
     <span class="label mt-normal">Delegator</span>
-    <span>
-      Identity {{ getKey(selectedDelegation.delegatorPubkey)?.nid }}:
-      {{ getKey(selectedDelegation.delegatorPubkey)?.nick }}
-    </span>
+    <ng-container
+      *ngIf="hasKey(selectedDelegation.delegatorPubkey); else delegatorRemoved"
+    >
+      <span>
+        Identity {{ getKey(selectedDelegation.delegatorPubkey)?.nid }}:
+        {{ getKey(selectedDelegation.delegatorPubkey)?.nick }}
+      </span>
+    </ng-container>
+    <ng-template #delegatorRemoved>
+      <mat-form-field appearance="outline" color="primary">
+        <input
+          matInput
+          placeholder="Nick"
+          [ngModel]="selectedDelegation.delegatorNick"
+          (change)="onChangeDelegatorNick($event, selectedDelegation)"
+        />
+      </mat-form-field>
+    </ng-template>
 
     <span class="label mt-normal">Delegatee</span>
     <span>

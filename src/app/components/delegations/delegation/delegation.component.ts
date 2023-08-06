@@ -31,6 +31,10 @@ export class DelegationComponent {
     return this.keys.find((x) => x.pubkey === pubkey);
   }
 
+  hasKey(pubkey: string): boolean {
+    return typeof this.keys.find((x) => x.pubkey === pubkey) !== 'undefined';
+  }
+
   getDate(time: number | undefined): Date | undefined {
     if (!time) {
       return undefined;

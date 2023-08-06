@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { ConfirmService } from 'src/app/services/confirm.service';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { LocaleService } from 'src/app/services/locale.service';
+import { DelegationHelper } from 'src/app/common/delegationHelper';
 
 class NewDelegation {
   canCreate = false;
@@ -113,24 +114,29 @@ export class DelegationsComponent implements OnInit, OnDestroy {
   selectedDelegation: RxDocument<DelegationDocType> | undefined;
   keys: RxDocument<KeyDocType>[] = [];
 
+  delegationHelper = DelegationHelper;
+
   get hasActiveDelegations(): boolean {
     return (
-      typeof this.delegations.find((x) => this.isActive(x.from, x.until)) !==
-      'undefined'
+      typeof this.delegations.find((x) =>
+        DelegationHelper.isActive(x.from, x.until)
+      ) !== 'undefined'
     );
   }
 
   get hasFutureDelegations(): boolean {
     return (
-      typeof this.delegations.find((x) => this.isFuture(x.from, x.until)) !==
-      'undefined'
+      typeof this.delegations.find((x) =>
+        DelegationHelper.isFuture(x.from, x.until)
+      ) !== 'undefined'
     );
   }
 
   get hasPastDelegations(): boolean {
     return (
-      typeof this.delegations.find((x) => this.isPast(x.from, x.until)) !==
-      'undefined'
+      typeof this.delegations.find((x) =>
+        DelegationHelper.isPast(x.from, x.until)
+      ) !== 'undefined'
     );
   }
 
@@ -189,7 +195,6 @@ export class DelegationsComponent implements OnInit, OnDestroy {
           until,
         }
       );
-      console.log(delegation);
 
       await this._rxdbService.db?.delegations.insert({
         id: v4(),
@@ -234,11 +239,27 @@ export class DelegationsComponent implements OnInit, OnDestroy {
     return this.keys.find((x) => x.pubkey === pubkey);
   }
 
+  hasKey(pubkey: string): boolean {
+    return typeof this.keys.find((x) => x.pubkey === pubkey) !== 'undefined';
+  }
+
   getDate(time: number | undefined): Date | undefined {
     if (!time) {
       return undefined;
     }
     return new Date(time * 1000);
+  }
+
+  async onChangeDelegatorNick(
+    event: any,
+    delegation: RxDocument<DelegationDocType>
+  ) {
+    const newNick = event.target.value as string;
+    await delegation.update({
+      $set: {
+        delegatorNick: newNick,
+      },
+    });
   }
 
   private async _loadDelegations() {
@@ -265,71 +286,5 @@ export class DelegationsComponent implements OnInit, OnDestroy {
       .exec();
 
     this.keys = keys.sortBy((x) => x.nid);
-  }
-
-  isActive(from: number | undefined, until: number | undefined) {
-    const now = new Date().getTime() / 1000;
-
-    if (!from && !until) {
-      return true;
-    }
-
-    if (!from && until) {
-      return now < until;
-    }
-
-    if (from && !until) {
-      return now > from;
-    }
-
-    if (from && until) {
-      return now > from && now < until;
-    }
-
-    return false; // will not happen :-)
-  }
-
-  isFuture(from: number | undefined, until: number | undefined) {
-    const now = new Date().getTime() / 1000;
-
-    if (!from && !until) {
-      return false;
-    }
-
-    if (!from && until) {
-      return false;
-    }
-
-    if (from && !until) {
-      return now < from;
-    }
-
-    if (from && until) {
-      return now < from;
-    }
-
-    return false; // will not happen :-)
-  }
-
-  isPast(from: number | undefined, until: number | undefined) {
-    const now = new Date().getTime() / 1000;
-
-    if (!from && !until) {
-      return false;
-    }
-
-    if (!from && until) {
-      return now > until;
-    }
-
-    if (from && !until) {
-      return false;
-    }
-
-    if (from && until) {
-      return now > until;
-    }
-
-    return false; // will not happen :-)
   }
 }

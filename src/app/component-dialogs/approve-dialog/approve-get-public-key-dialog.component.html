@@ -56,7 +56,7 @@
           placeholder="with identity ..."
         >
           <mat-option *ngFor="let key of keys" [value]="key">
-            {{ key.nick }}
+            <span class="color-green">{{ key.nick }}</span>
           </mat-option>
         </mat-select>
       </mat-form-field>

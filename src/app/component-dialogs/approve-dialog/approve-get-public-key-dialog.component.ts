@@ -1,12 +1,13 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Nip46Uri } from '@iijat-sw/nip46';
 import { RxDocument } from 'rxdb';
-import { Subscription } from 'rxjs';
 import { AppDocType } from 'src/app/models/rxdb/schemas/app';
+import { Response } from 'src/app/models/rxdb/schemas/response';
 import { KeyDocType, KeyDocTypeUsage } from 'src/app/models/rxdb/schemas/key';
 import { MixedService } from 'src/app/services/mixed.service';
 import { RxdbService } from 'src/app/services/rxdb.service';
+import { v4 } from 'uuid';
 
 export type ApproveGetPublicKeyDialogData = {
   app: Nip46Uri;
@@ -23,14 +24,10 @@ export type ApproveGetPublicKeyDialogResponse = {
   templateUrl: './approve-get-public-key-dialog.component.html',
   styleUrls: ['./approve-get-public-key-dialog.component.scss'],
 })
-export class ApproveGetPublicKeyDialogComponent implements OnInit, OnDestroy {
-  keys: RxDocument<KeyDocType>[] | undefined;
-  connection: RxDocument<AppDocType> | null = null;
+export class ApproveGetPublicKeyDialogComponent implements OnInit {
+  keys: RxDocument<KeyDocType>[] = [];
+  connection: RxDocument<AppDocType> | undefined;
   selectedKey: RxDocument<KeyDocType> | undefined;
-
-  private _isSelectedKeyEvaluated = false;
-  private _keysSubscription: Subscription | undefined;
-  private _connectionSubscription: Subscription | undefined;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ApproveGetPublicKeyDialogData,
@@ -40,32 +37,7 @@ export class ApproveGetPublicKeyDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this._keysSubscription = this._rxdbService.db?.keys
-      .find({
-        selector: {
-          usage: KeyDocTypeUsage.User,
-        },
-      })
-      .$.subscribe((keys) => {
-        this.keys = keys;
-        this._evaluateSelectedKey();
-      });
-
-    this._connectionSubscription = this._rxdbService.db?.apps
-      .findOne({
-        selector: {
-          nostrConnectUri: this.data.app.toURI(),
-        },
-      })
-      .$.subscribe((connection) => {
-        this.connection = connection;
-        this._evaluateSelectedKey();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this._keysSubscription?.unsubscribe();
-    this._connectionSubscription?.unsubscribe();
+    this._loadData();
   }
 
   decline() {
@@ -76,8 +48,8 @@ export class ApproveGetPublicKeyDialogComponent implements OnInit, OnDestroy {
     this._dialogRef.close(returnValue);
   }
 
-  approveWithIdentity() {
-    if (!this.selectedKey) {
+  async approveWithIdentity() {
+    if (!this.selectedKey || !this.connection || !this._rxdbService.db) {
       return;
     }
 
@@ -85,6 +57,33 @@ export class ApproveGetPublicKeyDialogComponent implements OnInit, OnDestroy {
       pubkey: this.selectedKey.pubkey,
       key: this.selectedKey,
     };
+
+    // Store the selection for future requests.
+    const response = await this._rxdbService.db.responses
+      .findOne({
+        selector: {
+          appId: this.connection.id,
+          response: Response.GetPublicKey,
+        },
+      })
+      .exec();
+
+    if (!response) {
+      // Insert new record.
+      await this._rxdbService.db.responses.insert({
+        id: v4(),
+        appId: this.connection.id,
+        response: Response.GetPublicKey,
+        lastKeyId: this.selectedKey.id,
+      });
+    } else {
+      // Update existing record.
+      await response.update({
+        $set: {
+          lastKeyId: this.selectedKey.id,
+        },
+      });
+    }
 
     this._dialogRef.close(returnValue);
   }
@@ -102,23 +101,48 @@ export class ApproveGetPublicKeyDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  private _evaluateSelectedKey() {
-    // Make sure that both the keys and the connection has been loaded from the local database.
-    if (!this.keys || !this.connection) {
+  private async _loadData() {
+    await this._loadKeys();
+    await this._loadConnection();
+    await this._setSelectedKey();
+  }
+
+  private async _loadKeys() {
+    this.keys =
+      (await this._rxdbService.db?.keys
+        .find({
+          selector: {
+            usage: KeyDocTypeUsage.User,
+          },
+        })
+        .exec()) ?? [];
+  }
+
+  private async _loadConnection() {
+    this.connection =
+      (await this._rxdbService.db?.apps
+        .findOne({
+          selector: {
+            nostrConnectUri: this.data.app.toURI(),
+          },
+        })
+        .exec()) ?? undefined;
+  }
+
+  private async _setSelectedKey() {
+    const response = await this._rxdbService.db?.responses
+      .findOne({
+        selector: {
+          appId: this.connection?.id,
+          response: Response.GetPublicKey,
+        },
+      })
+      .exec();
+
+    if (!response) {
       return;
     }
 
-    // Check if everything already was evaluated or if there actually is a "lastKeyId" available.
-    if (this._isSelectedKeyEvaluated || !this.connection.lastKeyId) {
-      return;
-    }
-
-    // Evaluate.
-    this.selectedKey = this.keys.find(
-      (x) => x.id === this.connection?.lastKeyId
-    );
-
-    // Make sure the evaluation is not running again.
-    this._isSelectedKeyEvaluated = true;
+    this.selectedKey = this.keys.find((x) => x.id === response.lastKeyId);
   }
 }

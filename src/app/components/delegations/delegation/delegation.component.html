@@ -7,12 +7,19 @@
 
     <div class="flex-column gap-tiny align-items-center">
       <div class="id-area">
-        <div class="font-size-12" style="color: lightgray">
-          Identity {{ getKey(delegation.delegatorPubkey)?.nid }}
-        </div>
-        <div style="color: var(--green)">
-          {{ getKey(delegation.delegatorPubkey)?.nick }}
-        </div>
+        <ng-container
+          *ngIf="hasKey(delegation.delegatorPubkey); else delegatorRemoved"
+        >
+          <div class="font-size-12" style="color: lightgray">
+            Identity {{ getKey(delegation.delegatorPubkey)?.nid }}
+          </div>
+          <div style="color: var(--green)">
+            {{ getKey(delegation.delegatorPubkey)?.nick }}
+          </div>
+        </ng-container>
+        <ng-template #delegatorRemoved>
+          <span class="color-green">{{ delegation.delegatorNick }}</span>
+        </ng-template>
       </div>
 
       <mat-icon class="align-self-center"> south </mat-icon>

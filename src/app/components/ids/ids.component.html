@@ -18,27 +18,28 @@
         </div>
         <div
           *ngFor="let delegation of getActiveDelegations(key.pubkey)"
-          class="justify-content-end flex-row align-items-center gap-normal"
+          class="justify-content-end flex-row align-items-center gap-normal overflow-x-hidden width-100"
         >
-          <span class="font-size-12">
+          <span class="font-size-12 nowrap">
             with <b>KIND {{ delegation.kinds[0] }}</b> delegation from
           </span>
           <!-- has key in database -->
-          <ng-container
+          <div
             *ngIf="hasKey(delegation.delegatorPubkey); else hasNoKey"
+            class="nowrap flex-row align-items-center gap-normal"
           >
             <span class="font-size-12" style="color: lightgray">
               Identity
               {{ getKey(delegation.delegatorPubkey)?.nid }}
             </span>
-            <div style="color: var(--green)">
+            <div style="color: var(--green)" class="nowrap">
               {{ getKey(delegation.delegatorPubkey)?.nick }}
             </div>
-          </ng-container>
+          </div>
 
           <!-- has NO key in database -->
           <ng-template #hasNoKey>
-            {{ delegation.delegatorPubkey }}
+            <span class="color-green">{{ delegation.delegatorNick }}</span>
           </ng-template>
         </div>
       </div>

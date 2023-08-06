@@ -17,3 +17,19 @@
   overflow-wrap: anywhere;
   text-wrap: wrap;
 }
+
+.keys-and-delegations {
+  display: flex;
+  flex-direction: row;
+  overflow-x: hidden;
+  column-gap: 8px;
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .ellipsis {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+}
