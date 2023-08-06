@@ -131,6 +131,14 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
           this.selectedKeyAndDelegation.delegation.token,
         ]);
       }
+
+      // Set delegatorNick
+      const delegatorKey = this.getKey(
+        this.selectedKeyAndDelegation.delegation.delegatorPubkey
+      );
+      this.selectedKeyAndDelegation.delegatorNick =
+        delegatorKey?.nick ??
+        this.selectedKeyAndDelegation.delegation.delegatorNick;
     }
 
     const id = getEventHash(this.data.unsignedEvent);

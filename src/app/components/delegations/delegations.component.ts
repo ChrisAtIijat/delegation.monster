@@ -239,11 +239,27 @@ export class DelegationsComponent implements OnInit, OnDestroy {
     return this.keys.find((x) => x.pubkey === pubkey);
   }
 
+  hasKey(pubkey: string): boolean {
+    return typeof this.keys.find((x) => x.pubkey === pubkey) !== 'undefined';
+  }
+
   getDate(time: number | undefined): Date | undefined {
     if (!time) {
       return undefined;
     }
     return new Date(time * 1000);
+  }
+
+  async onChangeDelegatorNick(
+    event: any,
+    delegation: RxDocument<DelegationDocType>
+  ) {
+    const newNick = event.target.value as string;
+    await delegation.update({
+      $set: {
+        delegatorNick: newNick,
+      },
+    });
   }
 
   private async _loadDelegations() {

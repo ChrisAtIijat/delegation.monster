@@ -89,7 +89,8 @@
                 <span class="nowrap">on behalf of</span>
                 <span class="nowrap ellipsis color-green">
                   {{
-                    getKey(keyAndDelegation.delegation.delegatorPubkey)?.nick
+                    getKey(keyAndDelegation.delegation.delegatorPubkey)?.nick ??
+                      keyAndDelegation.delegation.delegatorNick
                   }}
                 </span>
               </ng-container>

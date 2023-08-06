@@ -20,6 +20,7 @@ import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
 import { generatePrivateKey, getPublicKey } from '@iijat-sw/nip46';
 import { delegationSchema } from '../models/rxdb/schemas/delegation';
 import { responseSchema } from '../models/rxdb/schemas/response';
+import { RxDBMigrationPlugin } from 'rxdb/plugins/migration';
 
 export enum RxdbServiceState {
   FirstTimeDbRun = 1,
@@ -80,6 +81,7 @@ export class RxdbService {
     // console.log(isDevMode());
     try {
       addRxPlugin(RxDBDevModePlugin);
+      addRxPlugin(RxDBMigrationPlugin);
 
       // if (isDevMode()) {
       //   await import('rxdb/plugins/dev-mode').then((module) => {
@@ -224,6 +226,11 @@ export class RxdbService {
       },
       delegations: {
         schema: delegationSchema,
+        migrationStrategies: {
+          1: function (oldDoc) {
+            return oldDoc;
+          },
+        },
       },
       keys: {
         schema: keySchema,

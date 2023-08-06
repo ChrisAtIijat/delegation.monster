@@ -4,6 +4,7 @@ export type DelegationDocType = {
   id: string;
   delegateePubkey: string;
   delegatorPubkey: string;
+  delegatorNick?: string;
   kinds: number[];
   from?: number;
   until?: number;
@@ -12,7 +13,7 @@ export type DelegationDocType = {
 };
 
 export const delegationSchema: RxJsonSchema<DelegationDocType> = {
-  version: 0,
+  version: 1,
   type: 'object',
   primaryKey: 'id',
   properties: {
@@ -24,6 +25,9 @@ export const delegationSchema: RxJsonSchema<DelegationDocType> = {
       type: 'string',
     },
     delegatorPubkey: {
+      type: 'string',
+    },
+    delegatorNick: {
       type: 'string',
     },
     kinds: {
