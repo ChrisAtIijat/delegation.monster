@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.2.1
+
+_Release 08/06/2023_
+
+#### Features
+
+- Add delegation usage to event signing.
+
+# Changelog
+
 # 0.2.0
 
 _Release 08/04/2023_
