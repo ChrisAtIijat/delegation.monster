@@ -40,13 +40,51 @@
       </qrcode>
     </div>
 
+    <div *ngIf="!useDefaultFlow" class="flex-column gap-tiny">
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onClickManualRequest('describe')"
+        [disabled]="!isConnected"
+      >
+        DESCRIBE
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onClickManualRequest('get_public_key')"
+        [disabled]="!isConnected"
+      >
+        GET_PUBLIC_KEY
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onClickManualRequest('sign_event')"
+        [disabled]="!isConnected"
+      >
+        SIGN_EVENT
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onClickManualRequest('delegate')"
+        [disabled]="!isConnected"
+      >
+        DELEGATE
+      </button>
+    </div>
+
     <div class="mt-large flex-row align-items-center gap-small">
-      <mat-icon class="color-orange-800"> east </mat-icon>
+      <mat-icon class="color-orange-800"> west </mat-icon>
       <span>in</span>
     </div>
 
     <div class="mb-large flex-row align-items-center gap-small">
-      <mat-icon class="color-green"> west </mat-icon>
+      <mat-icon class="color-green"> east </mat-icon>
       <span>out</span>
     </div>
   </ng-container>
@@ -55,10 +93,10 @@
     <div>{{ log.key | date : 'HH:mm:ss.SSS' }}</div>
 
     <mat-icon class="color-orange-800" *ngIf="log.value.direction === 'in'">
-      east
+      west
     </mat-icon>
     <mat-icon style="color: var(--green)" *ngIf="log.value.direction === 'out'">
-      west
+      east
     </mat-icon>
 
     <div

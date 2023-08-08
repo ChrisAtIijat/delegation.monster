@@ -2,7 +2,12 @@ import { KeyValue } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { Nip46SignerEvent, Nip46Uri, UnsignedEvent } from '@iijat-sw/nip46';
+import {
+  EventTemplate,
+  Nip46SignerEvent,
+  Nip46Uri,
+  UnsignedEvent,
+} from '@iijat-sw/nip46';
 import { RxDocument } from 'rxdb';
 import { Nip46Log, Nip46LogLevel } from 'src/app/common/signerLog';
 import {
@@ -243,7 +248,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   private _handleSignEventRequest(
     app: Nip46Uri,
     requestId: string,
-    unsignedEvent: UnsignedEvent
+    eventTemplate: EventTemplate
   ) {
     this._log(Nip46LogLevel.Nip46, 'in', 'sign_event');
 
@@ -253,7 +258,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
 
     const data: ApproveSignEventDialogData = {
       app: this.app,
-      unsignedEvent,
+      eventTemplate,
     };
 
     const dialog = this._matDialog.open(ApproveSignEventDialogComponent, {
