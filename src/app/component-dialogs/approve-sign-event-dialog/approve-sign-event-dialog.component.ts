@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
   Event,
+  EventTemplate,
   Nip46Uri,
   UnsignedEvent,
   getEventHash,
@@ -20,7 +21,7 @@ import { v4 } from 'uuid';
 
 export type ApproveSignEventDialogData = {
   app: Nip46Uri;
-  unsignedEvent: UnsignedEvent;
+  eventTemplate: EventTemplate;
 };
 
 export type ApproveSignEventDialogResponse = {
@@ -73,7 +74,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
   }
 
   getDetails() {
-    return JSON.stringify(this.data.unsignedEvent, null, 2);
+    return JSON.stringify(this.data.eventTemplate, null, 2);
   }
 
   getKey(pubkey: string): RxDocument<KeyDocType> | undefined {
@@ -93,7 +94,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const signedEvent = await window.nostr?.signEvent(this.data.unsignedEvent);
+    const signedEvent = await window.nostr?.signEvent(this.data.eventTemplate);
 
     const returnValue: ApproveSignEventDialogResponse = {
       signedEvent,
@@ -116,12 +117,12 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
     if (this.selectedKeyAndDelegation.delegation) {
       // Yes. It is a signing "on behalf of".
       // Add delegation information to the unsigned event.
-      if (typeof this.data.unsignedEvent.tags === 'undefined') {
-        this.data.unsignedEvent.tags = [];
+      if (typeof this.data.eventTemplate.tags === 'undefined') {
+        this.data.eventTemplate.tags = [];
       }
 
-      if (Array.isArray(this.data.unsignedEvent.tags)) {
-        this.data.unsignedEvent.tags.push([
+      if (Array.isArray(this.data.eventTemplate.tags)) {
+        this.data.eventTemplate.tags.push([
           'delegation',
           this.selectedKeyAndDelegation.delegation.delegatorPubkey,
           this.selectedKeyAndDelegation.delegation.conditions,
@@ -138,16 +139,21 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
         this.selectedKeyAndDelegation.delegation.delegatorNick;
     }
 
-    const id = getEventHash(this.data.unsignedEvent);
+    const unsignedEvent: UnsignedEvent = {
+      ...this.data.eventTemplate,
+      pubkey: this.selectedKeyAndDelegation.key.pubkey,
+    };
+
+    const id = getEventHash(unsignedEvent);
     const sig = getSignature(
-      this.data.unsignedEvent,
+      unsignedEvent,
       this.selectedKeyAndDelegation.key.privkey
     );
 
     const signedEvent: Event = {
       id,
       sig,
-      ...this.data.unsignedEvent,
+      ...unsignedEvent,
     };
 
     // Store selection for future requests.
@@ -155,7 +161,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       .findOne({
         selector: {
           appId: this.connection.id,
-          response: Response.SignEvent + this.data.unsignedEvent.kind,
+          response: Response.SignEvent + this.data.eventTemplate.kind,
         },
       })
       .exec();
@@ -164,7 +170,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       await this._rxdbService.db.responses.insert({
         id: v4(),
         appId: this.connection.id,
-        response: Response.SignEvent + this.data.unsignedEvent.kind,
+        response: Response.SignEvent + this.data.eventTemplate.kind,
         lastKeyId: this.selectedKeyAndDelegation.key.id,
         lastDelegationId: this.selectedKeyAndDelegation.delegation?.id,
       });
@@ -191,7 +197,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
       .findOne({
         selector: {
           appId: this.connection?.id,
-          response: Response.SignEvent + this.data.unsignedEvent.kind,
+          response: Response.SignEvent + this.data.eventTemplate.kind,
         },
       })
       .exec();
@@ -221,7 +227,7 @@ export class ApproveSignEventDialogComponent implements OnInit, OnDestroy {
     this.delegations =
       delegations?.filter(
         (x) =>
-          x.kinds.includes(this.data.unsignedEvent.kind) &&
+          x.kinds.includes(this.data.eventTemplate.kind) &&
           DelegationHelper.isActive(x.from, x.until)
       ) ?? [];
   }
