@@ -57,6 +57,7 @@ import { PasteUriComponent } from './component-helpers/paste-uri/paste-uri.compo
 import { DelegationsComponent } from './components/delegations/delegations.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DelegationComponent } from './components/delegations/delegation/delegation.component';
+import { ApproveDelegateDialogComponent } from './component-dialogs/approve-delegate-dialog/approve-delegate-dialog.component';
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBDevModePlugin);
@@ -92,6 +93,7 @@ addRxPlugin(RxDBDevModePlugin);
     ContactComponent,
     DelegationsComponent,
     DelegationComponent,
+    ApproveDelegateDialogComponent,
   ],
   imports: [
     FormsModule,

@@ -23,7 +23,7 @@
     "@angular/platform-browser": "~16.0.0",
     "@angular/platform-browser-dynamic": "~16.0.0",
     "@angular/router": "~16.0.0",
-    "@iijat-sw/nip46": "^0.0.2",
+    "@iijat-sw/nip46": "^0.0.3",
     "@ng-matero/extensions": "^16.0.2",
     "@noble/curves": "^1.1.0",
     "@nx/angular": "16.3.2",
