@@ -5,6 +5,7 @@ import {
   Kind,
   Nip46App,
   Nip46AppEvent,
+  Nip46DelegateRequestParams,
   Nip46Uri,
   UnsignedEvent,
   generatePrivateKey,
@@ -16,6 +17,9 @@ import { Subject, Subscription } from 'rxjs';
 import { Nip46Log } from 'src/app/common/signerLog';
 import { sleep } from 'src/app/common/sleep';
 import { MixedService } from 'src/app/services/mixed.service';
+import { nip26 } from 'nostr-tools';
+import { DateTime } from 'luxon';
+import { createPrivateKey } from 'crypto';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -24,7 +28,7 @@ import { MixedService } from 'src/app/services/mixed.service';
   styleUrls: ['./debug.component.scss'],
 })
 export class DebugComponent implements OnInit, OnDestroy {
-  useDefaultFlow = true;
+  useDefaultFlow = false;
   relay = 'wss://relay.damus.io';
   logs = new Map<Date, Nip46Log>();
   nip46Uri: string | undefined;
@@ -133,16 +137,15 @@ export class DebugComponent implements OnInit, OnDestroy {
 
       // 2: Create an unsigned event and request sign_event.
       await sleep(10);
-      const unsignedEvent: UnsignedEvent = {
+      const eventTemplate: EventTemplate = {
         kind: Kind.Text,
         created_at: Math.floor(Date.now() / 1000),
-        pubkey,
         tags: [],
         content: `This is a test note to verify that you are in control of your pubkey. It will NOT be published.`,
       };
 
-      this._log('out', 'sign_event', unsignedEvent);
-      const signedEvent = await app.sendSignEvent(unsignedEvent);
+      this._log('out', 'sign_event', eventTemplate);
+      const signedEvent = await app.sendSignEvent(eventTemplate);
       this._log('in', 'sign_event', signedEvent);
     } catch (error) {
       this._log('in', JSON.stringify(error), error as object);
@@ -182,19 +185,47 @@ export class DebugComponent implements OnInit, OnDestroy {
 
             this._log('out', 'sign_event', unsignedEvent);
             const signedEvent = await app.sendSignEvent(unsignedEvent);
-            this._log('in', 'sign_event', signedEvent);
 
             const veryOk = verifySignature(signedEvent);
             if (!veryOk) {
               this._log('in', 'sign_event: verification error');
+            } else {
+              const delegator = nip26.getDelegator(signedEvent);
+              if (delegator) {
+                this._log('in', 'sign_event (with delegation)', signedEvent);
+              } else {
+                this._log('in', 'sign_event', signedEvent);
+              }
             }
+
             // CHeck if the signed event is valid.
           } catch (error) {
             this._log('in', `sign_event: ${JSON.stringify(error)}`);
           }
         } else if (name === 'delegate') {
           // DELEGATE
-          // TODO
+          const privkey = generatePrivateKey();
+          const pubkey = getPublicKey(privkey);
+          const since =
+            DateTime.now().startOf('day').toJSDate().getTime() / 1000;
+          const until =
+            DateTime.now()
+              .startOf('day')
+              .plus({ days: 30 })
+              .toJSDate()
+              .getTime() / 1000;
+          const params: Nip46DelegateRequestParams = [
+            pubkey,
+            { kind: 1, since, until },
+          ];
+
+          this._log('out', 'delegate', params);
+          try {
+            const result = await app.sendDelegate(params);
+            this._log('in', 'delegate', result);
+          } catch (error) {
+            this._log('in', `delegate: ${JSON.stringify(error)}`);
+          }
         }
       }
     );
