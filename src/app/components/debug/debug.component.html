@@ -3,21 +3,13 @@
 
   <span>
     To test the functionality of the NIP-46 <b>signer</b>, you can instantiate a
-    NIP-46 <b>app</b> here.
-  </span>
-
-  <mat-checkbox [color]="color" class="mt-small" [(ngModel)]="useDefaultFlow">
-    use automatic flow
-  </mat-checkbox>
-
-  <span class="small">
-    With automatic flow, the app will respond to a <b>connect</b> request from a
-    signer with a <b>get_public_key</b> request. When it receives the response
-    (i.e. the public key), it will send a <b>sign_event</b> (kind 1) request.
+    NIP-46 <b>app</b> here. Once the remote signer has send a connect request,
+    you can trigger the commands <i>describe</i>, <i>get_public_key</i>,
+    <i>sign_event</i>, <i>delegate</i>.
   </span>
 
   <mat-form-field class="mt-large" appearance="outline" [color]="color">
-    <input matInput placeholder="Nick" [(ngModel)]="relay" />
+    <input matInput placeholder="Relay" [(ngModel)]="relay" />
   </mat-form-field>
 
   <button
@@ -40,7 +32,7 @@
       </qrcode>
     </div>
 
-    <div *ngIf="!useDefaultFlow" class="flex-column gap-tiny">
+    <div class="flex-column gap-tiny">
       <button
         mat-flat-button
         color="primary"
@@ -87,6 +79,10 @@
       <mat-icon class="color-green"> east </mat-icon>
       <span>out</span>
     </div>
+
+    <span *ngIf="!isConnected" class="mb-large">
+      Waiting for remote signer to connect.
+    </span>
   </ng-container>
 
   <div *ngFor="let log of logs | keyvalue" class="logs-row">
