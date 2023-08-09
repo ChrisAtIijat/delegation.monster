@@ -41,7 +41,6 @@ class ManualFlowConfig {
   styleUrls: ['./debug.component.scss'],
 })
 export class DebugComponent implements OnInit, OnDestroy {
-  useDefaultFlow = false;
   relay = 'wss://relay.damus.io';
   logs = new Map<Date, Nip46Log>();
   nip46Uri: string | undefined;
@@ -134,37 +133,7 @@ export class DebugComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.useDefaultFlow) {
-      await this._defaultFlow(this._nip46App);
-    } else {
-      await this._manualFlow(this._nip46App);
-    }
-  }
-
-  private async _defaultFlow(app: Nip46App) {
-    try {
-      await sleep(10);
-
-      // 1: Get pubkey from remote signer app.
-      this._log('out', 'get_public_key');
-      const pubkey = await app.sendGetPublicKey();
-      this._log('in', `get_public_key: ${pubkey}`);
-
-      // 2: Create an unsigned event and request sign_event.
-      await sleep(10);
-      const eventTemplate: EventTemplate = {
-        kind: Kind.Text,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [],
-        content: `This is a test note to verify that you are in control of your pubkey. It will NOT be published.`,
-      };
-
-      this._log('out', 'sign_event', eventTemplate);
-      const signedEvent = await app.sendSignEvent(eventTemplate);
-      this._log('in', 'sign_event', signedEvent);
-    } catch (error) {
-      this._log('in', JSON.stringify(error), error as object);
-    }
+    await this._manualFlow(this._nip46App);
   }
 
   private async _manualFlow(app: Nip46App) {

@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.3.1
+
+_Release 08/09/2023_
+
+#### Fixes
+
+- Fix missing automatic camera selection on first time run.
+
 # 0.3.0
 
 _Release 08/09/2023_
