@@ -279,7 +279,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
           this.app,
           requestId,
           null,
-          'The user declined your request.'
+          'The signer declined your request.'
         );
       }
     });
@@ -324,8 +324,9 @@ export class ConnectionComponent implements OnInit, OnDestroy {
           this.app,
           requestId,
           null,
-          'The user declined your request.'
+          'The signer declined your request.'
         );
+        this._log(Nip46LogLevel.Nip46, 'out', `delegate (declined)`);
       }
     });
   }

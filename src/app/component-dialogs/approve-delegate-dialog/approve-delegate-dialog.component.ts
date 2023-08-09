@@ -138,12 +138,9 @@ export class ApproveDelegateDialogComponent implements OnInit {
       })
       .exec();
 
-    if (!response) {
+    if (typeof response?.lastKeyId === 'undefined') {
       return;
     }
-
-    if (typeof response.lastKeyId !== 'undefined') {
-      this.selectedKey = this.keys.find((x) => x.id === response.lastKeyId);
-    }
+    this.selectedKey = this.keys.find((x) => x.id === response.lastKeyId);
   }
 }
