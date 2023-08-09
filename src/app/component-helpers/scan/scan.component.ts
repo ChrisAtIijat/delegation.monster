@@ -58,6 +58,9 @@ export class ScanComponent implements AfterViewInit {
       this.selectedDevice = this.devices.find(
         (x) => x.deviceId === localStorage.getItem(LOCAL_STORAGE.CAMERA)
       );
+      if (!this.selectedDevice) {
+        this.selectedDevice = this.devices[0];
+      }
     });
   }
 
