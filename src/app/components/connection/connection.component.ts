@@ -2,9 +2,19 @@ import { KeyValue } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { Nip46SignerEvent, Nip46Uri, UnsignedEvent } from '@iijat-sw/nip46';
+import {
+  EventTemplate,
+  Nip46SignerEvent,
+  Nip46Uri,
+  Nip46DelegateRequestParams,
+} from '@iijat-sw/nip46';
 import { RxDocument } from 'rxdb';
 import { Nip46Log, Nip46LogLevel } from 'src/app/common/signerLog';
+import {
+  ApproveDelegateDialogComponent,
+  ApproveDelegateDialogData,
+  ApproveDelegateDialogResponse,
+} from 'src/app/component-dialogs/approve-delegate-dialog/approve-delegate-dialog.component';
 import {
   ApproveGetPublicKeyDialogComponent,
   ApproveGetPublicKeyDialogData,
@@ -96,36 +106,14 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         Nip46SignerEvent.IncomingRequest_get_public_key,
         this._handleGetPublicKeyRequest.bind(this)
       );
-
       this._signerService.nip46Signer?.events.addListener(
         Nip46SignerEvent.IncomingRequest_sign_event,
         this._handleSignEventRequest.bind(this)
       );
-
-      // const nip46Socket = this._signerService.nip46Signer?.getNip46Socket(
-      //   this.app
-      // );
-
-      // nip46Socket?.events.addListener(
-      //   NostrSocketEvent.EVENT,
-      //   (event: NostrRelay2ClientMessage_EVENT) => {
-      //     this._log(LogLevel.Nostr, 'in', 'Nostr EVENT', event.event);
-      //   }
-      // );
-
-      // nip46Socket?.events.addListener(
-      //   NostrSocketEvent.EOSE,
-      //   (event: NostrRelay2ClientMessage_EOSE) => {
-      //     this._log(LogLevel.Nostr, 'in', 'Nostr EOSE');
-      //   }
-      // );
-
-      // nip46Socket?.events.addListener(
-      //   NostrSocketEvent.NOTICE,
-      //   (event: NostrRelay2ClientMessage_NOTICE) => {
-      //     this._log(LogLevel.Nostr, 'in', 'Nostr NOTICE');
-      //   }
-      // );
+      this._signerService.nip46Signer?.events.addListener(
+        Nip46SignerEvent.IncomingRequest_delegate,
+        this._handleDelegateRequest.bind(this)
+      );
 
       // Step 5: Send "connect" to app. Now it's up to the app to request "things".
       await this._signerService.nip46Signer?.sendConnect(this.app);
@@ -243,7 +231,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   private _handleSignEventRequest(
     app: Nip46Uri,
     requestId: string,
-    unsignedEvent: UnsignedEvent
+    eventTemplate: EventTemplate
   ) {
     this._log(Nip46LogLevel.Nip46, 'in', 'sign_event');
 
@@ -253,7 +241,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
 
     const data: ApproveSignEventDialogData = {
       app: this.app,
-      unsignedEvent,
+      eventTemplate,
     };
 
     const dialog = this._matDialog.open(ApproveSignEventDialogComponent, {
@@ -291,8 +279,54 @@ export class ConnectionComponent implements OnInit, OnDestroy {
           this.app,
           requestId,
           null,
-          'The user declined your request.'
+          'The signer declined your request.'
         );
+      }
+    });
+  }
+
+  private _handleDelegateRequest(
+    app: Nip46Uri,
+    requestId: string,
+    params: Nip46DelegateRequestParams
+  ) {
+    this._log(Nip46LogLevel.Nip46, 'in', 'delegate');
+
+    if (!this.app || this.app !== app) {
+      return;
+    }
+
+    const data: ApproveDelegateDialogData = {
+      app: this.app,
+      params,
+    };
+
+    const dialog = this._matDialog.open(ApproveDelegateDialogComponent, {
+      autoFocus: false,
+      minWidth: '340px',
+      maxWidth: '500px',
+      data,
+    });
+
+    dialog.afterClosed().subscribe((result: ApproveDelegateDialogResponse) => {
+      if (result.delegation && this.app) {
+        this._signerService.nip46Signer?.sendDelegateResponse(
+          this.app,
+          requestId,
+          result.delegation,
+          undefined
+        );
+
+        this._log(Nip46LogLevel.Nip46, 'out', `delegate`, result.delegation);
+      } else if (!result.delegation && this.app) {
+        // Declined.
+        this._signerService.nip46Signer?.sendDelegateResponse(
+          this.app,
+          requestId,
+          null,
+          'The signer declined your request.'
+        );
+        this._log(Nip46LogLevel.Nip46, 'out', `delegate (declined)`);
       }
     });
   }

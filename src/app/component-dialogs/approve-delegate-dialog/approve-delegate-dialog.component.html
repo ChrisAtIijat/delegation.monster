@@ -1,0 +1,76 @@
+<h1 mat-dialog-title class="header">Approval required</h1>
+
+<mat-dialog-content>
+  <div class="flex-column mat-body">
+    <span class="align-self-center">Allow the app to:</span>
+    <span class="align-self-center color-white">
+      <b>Delegate</b> kind {{ data.params[1].kind }}
+    </span>
+
+    <span
+      class="mt-normal align-self-center color-green"
+      *ngIf="!viewDetails"
+      (click)="viewDetails = !viewDetails"
+      >View details</span
+    >
+    <span
+      class="mt-normal align-self-center color-green"
+      *ngIf="viewDetails"
+      (click)="viewDetails = !viewDetails"
+      >Hide details</span
+    >
+
+    <ng-container *ngIf="viewDetails">
+      <div class="details-container mt-small">
+        <pre class="wrap"><code>{{ getDetails() }}</code></pre>
+      </div>
+    </ng-container>
+
+    <button
+      mat-stroked-button
+      class="button-big mt-large"
+      style="border-color: initial"
+      color="primary"
+      (click)="decline()"
+    >
+      <div class="flex-row align-items-center gap-tiny">
+        <div style="font-size: 16px; font-weight: 600">DECLINE</div>
+      </div>
+    </button>
+
+    <ng-container *ngIf="(keys?.length ?? 0) > 0; else noKeysElement">
+      <span class="align-self-center mb-normal mt-normal">or</span>
+
+      <button
+        mat-flat-button
+        class="button-big mb-small"
+        color="primary"
+        (click)="signWithIdentity()"
+        [disabled]="!selectedKey"
+      >
+        <div class="flex-row">
+          <div style="font-size: 16px; font-weight: 600">APPROVE</div>
+        </div>
+      </button>
+
+      <mat-form-field appearance="outline" color="primary">
+        <mat-select
+          [(ngModel)]="selectedKey"
+          class="mt-small"
+          placeholder="with identity ..."
+        >
+          <mat-option *ngFor="let key of keys" [value]="key">
+            <span class="color-green">{{ key.nick }}</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+
+    <ng-template #noKeysElement>
+      <span class="align-self-center mt-normal">
+        So far, you don't have any managed identities within delegation.monster.
+        Go to "Identities" and create one in order to start using it here.</span
+      >
+    </ng-template>
+  </div>
+</mat-dialog-content>

@@ -3,6 +3,7 @@ import { RxJsonSchema } from 'rxdb';
 export enum Response {
   GetPublicKey = 'get_public_key',
   SignEvent = 'sign_event_',
+  Delegate = 'delegate_',
 }
 
 export type ResponseDocType = {

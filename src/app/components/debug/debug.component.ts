@@ -5,14 +5,34 @@ import {
   Kind,
   Nip46App,
   Nip46AppEvent,
+  Nip46DelegateRequestParams,
   Nip46Uri,
-  UnsignedEvent,
   generatePrivateKey,
   getPublicKey,
+  verifySignature,
 } from '@iijat-sw/nip46';
+import { EventTemplate } from 'nostr-tools';
+import { Subject, Subscription } from 'rxjs';
 import { Nip46Log } from 'src/app/common/signerLog';
 import { sleep } from 'src/app/common/sleep';
 import { MixedService } from 'src/app/services/mixed.service';
+import { nip26 } from 'nostr-tools';
+import { DateTime } from 'luxon';
+
+class ManualFlowConfig {
+  delegatePrivkey: string;
+  get delegatePubkey() {
+    return getPublicKey(this.delegatePrivkey);
+  }
+
+  constructor() {
+    this.delegatePrivkey = generatePrivateKey();
+  }
+
+  regenerateDelegatePrivkey() {
+    this.delegatePrivkey = generatePrivateKey();
+  }
+}
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -21,10 +41,13 @@ import { MixedService } from 'src/app/services/mixed.service';
   styleUrls: ['./debug.component.scss'],
 })
 export class DebugComponent implements OnInit, OnDestroy {
-  useDefaultFlow = true;
+  useDefaultFlow = false;
   relay = 'wss://relay.damus.io';
   logs = new Map<Date, Nip46Log>();
   nip46Uri: string | undefined;
+  isConnected = false;
+
+  manualFlowConfig = new ManualFlowConfig();
 
   get color(): ThemePalette {
     return this._mixedService.isLightMode ? 'primary' : 'primary';
@@ -33,6 +56,10 @@ export class DebugComponent implements OnInit, OnDestroy {
   private _appPrivkey!: string;
   private _appPubkey!: string;
   private _nip46App: Nip46App | undefined;
+  private _manualFlowRequest = new Subject<
+    'get_public_key' | 'sign_event' | 'delegate' | 'describe'
+  >();
+  private _manualFlowRequestSubscription: Subscription | undefined;
 
   constructor(private _mixedService: MixedService) {
     this._mixedService.switchToLightMode();
@@ -45,6 +72,7 @@ export class DebugComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._mixedService.switchToDarkMode();
+    this._manualFlowRequestSubscription?.unsubscribe();
   }
 
   keyDescOrder = (
@@ -87,41 +115,134 @@ export class DebugComponent implements OnInit, OnDestroy {
   }
 
   goOffline() {
+    this.isConnected = false;
     this._nip46App?.goOffline();
   }
 
+  onClickManualRequest(
+    request: 'describe' | 'get_public_key' | 'sign_event' | 'delegate'
+  ) {
+    this._manualFlowRequest.next(request);
+  }
+
   private async _onConnect(signerPubkey: string) {
+    this.isConnected = true;
+
     this._log('in', `connect, signer pubkey: ${signerPubkey}`);
 
-    if (!this.useDefaultFlow || !this._nip46App) {
+    if (!this._nip46App) {
       return;
     }
 
-    // Use the default flow.
+    if (this.useDefaultFlow) {
+      await this._defaultFlow(this._nip46App);
+    } else {
+      await this._manualFlow(this._nip46App);
+    }
+  }
+
+  private async _defaultFlow(app: Nip46App) {
     try {
       await sleep(10);
 
       // 1: Get pubkey from remote signer app.
       this._log('out', 'get_public_key');
-      const pubkey = await this._nip46App.sendGetPublicKey();
+      const pubkey = await app.sendGetPublicKey();
       this._log('in', `get_public_key: ${pubkey}`);
 
       // 2: Create an unsigned event and request sign_event.
       await sleep(10);
-      const unsignedEvent: UnsignedEvent = {
+      const eventTemplate: EventTemplate = {
         kind: Kind.Text,
         created_at: Math.floor(Date.now() / 1000),
-        pubkey,
         tags: [],
         content: `This is a test note to verify that you are in control of your pubkey. It will NOT be published.`,
       };
 
-      this._log('out', 'sign_event', unsignedEvent);
-      const signedEvent = await this._nip46App.sendSignEvent(unsignedEvent);
+      this._log('out', 'sign_event', eventTemplate);
+      const signedEvent = await app.sendSignEvent(eventTemplate);
       this._log('in', 'sign_event', signedEvent);
     } catch (error) {
       this._log('in', JSON.stringify(error), error as object);
     }
+  }
+
+  private async _manualFlow(app: Nip46App) {
+    this._manualFlowRequestSubscription = this._manualFlowRequest.subscribe(
+      async (name) => {
+        if (name === 'get_public_key') {
+          // GET_PUBLIC_KEY
+          this._log('out', 'get_public_key');
+          try {
+            const pubkey = await app.sendGetPublicKey();
+            this._log('in', `get_public_key: ${pubkey}`);
+          } catch (error) {
+            this._log('in', 'get_public_key: ' + JSON.stringify(error));
+          }
+        } else if (name === 'describe') {
+          // DESCRIBE
+          this._log('out', 'describe');
+          try {
+            const result = await app.sendDescribe();
+            this._log('in', `describe: ${result}`);
+          } catch (error) {
+            this._log('in', `describe: ${JSON.stringify(error)}`);
+          }
+        } else if (name === 'sign_event') {
+          // SIGN_EVENT
+          try {
+            const unsignedEvent: EventTemplate = {
+              kind: Kind.Text,
+              created_at: Math.floor(Date.now() / 1000),
+              tags: [],
+              content: `This is a test note to verify that you are in control of your pubkey. It will NOT be published.`,
+            };
+
+            this._log('out', 'sign_event', unsignedEvent);
+            const signedEvent = await app.sendSignEvent(unsignedEvent);
+
+            const veryOk = verifySignature(signedEvent);
+            if (!veryOk) {
+              this._log('in', 'sign_event: verification error');
+            } else {
+              const delegator = nip26.getDelegator(signedEvent);
+              if (delegator) {
+                this._log('in', 'sign_event (with delegation)', signedEvent);
+              } else {
+                this._log('in', 'sign_event', signedEvent);
+              }
+            }
+
+            // CHeck if the signed event is valid.
+          } catch (error) {
+            this._log('in', `sign_event: ${JSON.stringify(error)}`);
+          }
+        } else if (name === 'delegate') {
+          // DELEGATE
+          const pubkey = this.manualFlowConfig.delegatePubkey;
+          const since =
+            DateTime.now().startOf('day').toJSDate().getTime() / 1000;
+          const until =
+            DateTime.now()
+              .startOf('day')
+              .plus({ days: 30 })
+              .toJSDate()
+              .getTime() / 1000;
+          const params: Nip46DelegateRequestParams = [
+            pubkey,
+            { kind: 1, since, until },
+          ];
+
+          this._log('out', 'delegate', params);
+          try {
+            const result = await app.sendDelegate(params);
+            this._log('in', 'delegate', result);
+          } catch (error) {
+            this._log('in', `delegate: ${JSON.stringify(error)}`);
+          }
+        }
+      }
+    );
   }
 
   private _off() {
