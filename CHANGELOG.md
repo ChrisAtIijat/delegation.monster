@@ -1,5 +1,18 @@
 # Changelog
 
+# 0.3.0
+
+_Release 08/09/2023_
+
+#### Features
+
+- [DELEGATE] - Implement handling of "external, incoming" NIP-46 delegation requests according to spec.
+- [NIP-46 Test App] - Add **manual flow** where you have separate buttons for triggering the following requests: `describe`, `get_public_key`, `sign_event` and `delegate`.
+
+#### Fixes
+
+- [SIGN_EVENT] - Correctly set the signer pubkey in the event before signing.
+
 # 0.2.2
 
 _Release 08/06/2023_
