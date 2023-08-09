@@ -24,12 +24,12 @@
   <span>{{ app?.relay }}</span>
 
   <div class="mt-large flex-row align-items-center gap-small">
-    <mat-icon class="color-orange-800"> east </mat-icon>
+    <mat-icon class="color-orange-800"> west </mat-icon>
     <span>in</span>
   </div>
 
   <div class="flex-row align-items-center gap-small">
-    <mat-icon class="color-green"> west </mat-icon>
+    <mat-icon class="color-green"> east </mat-icon>
     <span>out</span>
   </div>
 
@@ -40,13 +40,13 @@
     >
       <div>{{ log.key | date : 'HH:mm:ss.SSS' }}</div>
       <mat-icon class="color-orange-800" *ngIf="log.value.direction === 'in'">
-        east
+        west
       </mat-icon>
       <mat-icon
         style="color: var(--green)"
         *ngIf="log.value.direction === 'out'"
       >
-        west
+        east
       </mat-icon>
       <div>{{ log.value.message }}</div>
     </div>
