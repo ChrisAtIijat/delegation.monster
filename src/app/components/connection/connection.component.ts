@@ -7,6 +7,7 @@ import {
   Nip46SignerEvent,
   Nip46Uri,
   Nip46DelegateRequestParams,
+  Nip46App,
 } from '@iijat-sw/nip46';
 import { RxDocument } from 'rxdb';
 import { Nip46Log, Nip46LogLevel } from 'src/app/common/signerLog';
@@ -113,6 +114,35 @@ export class ConnectionComponent implements OnInit, OnDestroy {
       this._signerService.nip46Signer?.events.addListener(
         Nip46SignerEvent.IncomingRequest_delegate,
         this._handleDelegateRequest.bind(this)
+      );
+      this._signerService.nip46Signer?.events.addListener(
+        Nip46SignerEvent.IncomingRequest_describe,
+        async (app: Nip46App, requestId: string) => {
+          this._log(Nip46LogLevel.Nip46, 'in', 'describe');
+          if (!this.app) {
+            return;
+          }
+
+          const capabilities = [
+            'describe',
+            'connect',
+            'get_public_key',
+            'sign_event',
+            'delegate',
+          ];
+
+          await this._signerService.nip46Signer?.sendDescribeResponse(
+            this.app,
+            requestId,
+            capabilities,
+            undefined
+          );
+          this._log(
+            Nip46LogLevel.Nip46,
+            'out',
+            `describe: ${capabilities.join(', ')}`
+          );
+        }
       );
 
       // Step 5: Send "connect" to app. Now it's up to the app to request "things".
