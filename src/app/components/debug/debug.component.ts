@@ -7,7 +7,6 @@ import {
   Nip46AppEvent,
   Nip46DelegateRequestParams,
   Nip46Uri,
-  UnsignedEvent,
   generatePrivateKey,
   getPublicKey,
   verifySignature,
@@ -19,7 +18,21 @@ import { sleep } from 'src/app/common/sleep';
 import { MixedService } from 'src/app/services/mixed.service';
 import { nip26 } from 'nostr-tools';
 import { DateTime } from 'luxon';
-import { createPrivateKey } from 'crypto';
+
+class ManualFlowConfig {
+  delegatePrivkey: string;
+  get delegatePubkey() {
+    return getPublicKey(this.delegatePrivkey);
+  }
+
+  constructor() {
+    this.delegatePrivkey = generatePrivateKey();
+  }
+
+  regenerateDelegatePrivkey() {
+    this.delegatePrivkey = generatePrivateKey();
+  }
+}
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -33,6 +46,8 @@ export class DebugComponent implements OnInit, OnDestroy {
   logs = new Map<Date, Nip46Log>();
   nip46Uri: string | undefined;
   isConnected = false;
+
+  manualFlowConfig = new ManualFlowConfig();
 
   get color(): ThemePalette {
     return this._mixedService.isLightMode ? 'primary' : 'primary';
@@ -204,8 +219,7 @@ export class DebugComponent implements OnInit, OnDestroy {
           }
         } else if (name === 'delegate') {
           // DELEGATE
-          const privkey = generatePrivateKey();
-          const pubkey = getPublicKey(privkey);
+          const pubkey = this.manualFlowConfig.delegatePubkey;
           const since =
             DateTime.now().startOf('day').toJSDate().getTime() / 1000;
           const until =
